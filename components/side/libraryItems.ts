@@ -2,7 +2,7 @@ import type { ComponentType } from 'react';
 import { Ban, Castle, SunMedium, Film, Layers, PersonStanding, Trash2, UserRound, UsersRound, type LucideIcon } from 'lucide-react';
 import { applyMotion, applyPose, applyUpperBody, deleteModel, deleteMotion, deletePose, applyLightingPreset, placeTemplate, setFigureModel, setSceneSet } from '@/lib/actions';
 import { BUILT_IN, clipById, clipScene, hasClip } from '@/lib/assets';
-import { fetchLibraryClip, libraryMotions } from '@/lib/librarymotions';
+import { MOTION_SOURCES, fetchLibraryClip, libraryMotions, type MotionSource } from '@/lib/librarymotions';
 import { sceneAt } from '@/lib/evaluate';
 import { insertClip } from '@/lib/track';
 import type { Figure, Scene } from '@/lib/types';
@@ -24,6 +24,7 @@ import { LIGHTING_PRESETS, lightingName, lightingOf } from '@/lib/lighting';
 import type { LibraryTab, Store } from '@/lib/store';
 import { CharactersBar, MotionsBar, PosesBar, type BarProps } from './LibraryBars';
 import type { DropTarget } from '../dragdrop';
+import { matches } from '@/lib/search';
 
 /*
  * The library's items, category by category, as data: what each is called, where it is listed,
@@ -189,7 +190,7 @@ function motions(store: Store, ui: LibraryUi): LibraryItem[] {
     };
   });
   /** An imported clip's item (the Library's motion files, my motions): `load` brings it to hand first. */
-  const clipItem = (m: { id: string; name: string; duration: number; group: string; people?: number }, load: () => Promise<boolean>): LibraryItem => {
+  const clipItem = (m: { id: string; name: string; duration: number; group: string; people?: number; source?: MotionSource }, load: () => Promise<boolean>): LibraryItem => {
     const giveTo = (id: string) => void load().then((ok) => {
       const f = posableById(store, id);
       if (!ok) return ui.notify(`Could not load ${m.name}`);
@@ -210,6 +211,7 @@ function motions(store: Store, ui: LibraryUi): LibraryItem[] {
       icon: Film,
       // (Of two: the selected figure leads, the other selected or the nearest joins, else one is added.)
       meta: `${(m.people ?? 1) > 1 ? `${m.people} people · ` : ''}${m.duration.toFixed(1)} s`,
+      ...(m.source ? { note: MOTION_SOURCES[m.source] } : {}),
       disabled: !figure,
       run: () => { if (figure) { giveTo(figure.id); ui.onPick?.(); } },
       drop: { figure: giveTo, length: m.duration },
@@ -323,8 +325,7 @@ export const LIBRARY_CATEGORIES: LibraryCategory[] = [
   { id: 'lighting', label: 'Lighting', icon: SunMedium, grid: true, items: lighting },
 ];
 
-/** The library's items whose names hold `query` (every category's, or one's). */
+/** The library's items whose names match `query`, as said or in everyday words (every category's, or one's). */
 export function searchLibrary(store: Store, ui: LibraryUi, query: string, tab?: LibraryTab): LibraryItem[] {
-  const q = query.trim().toLowerCase();
-  return LIBRARY_CATEGORIES.filter((c) => !tab || c.id === tab).flatMap((c) => c.items(store, ui)).filter((it) => it.name.toLowerCase().includes(q));
+  return LIBRARY_CATEGORIES.filter((c) => !tab || c.id === tab).flatMap((c) => c.items(store, ui)).filter((it) => matches(it.name, query));
 }

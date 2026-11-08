@@ -10,10 +10,21 @@ import { withBase } from './paths';
  * too big to come with the page). They come with the app: never kept with a project or synced.
  */
 
+/** Where a Library motion comes from, when not Mixamo's captures: credited beside it and in public/motions/CREDITS.txt. */
+export const MOTION_SOURCES = {
+  quaternius: 'Animated by Quaternius (Universal Animation Library, CC0)',
+  snapmogen: 'Captured for the SnapMoGen dataset (used with permission)',
+  movens: 'From the Movens-5M dataset (used with permission)',
+  cmu: 'From the CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu)',
+} as const;
+export type MotionSource = keyof typeof MOTION_SOURCES;
+
 interface LibraryMotion {
   id: string;
   name: string;
   duration: number;
+  /** Where it comes from, when not Mixamo's captures. */
+  source?: MotionSource;
   /** How many people it is for (each a part of the clip). */
   people: number;
   group: (typeof MOTION_GROUPS)[number];

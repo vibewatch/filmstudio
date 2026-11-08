@@ -27,3 +27,14 @@ describe('searching the Library in everyday words (#62)', () => {
     expect(matches('Push-ups', 'gun')).toBe(false);
   });
 });
+
+describe('the command palette finds Library items in everyday words too (#64)', () => {
+  it('an everyday word finds a Library item there as in the Library (greeting: a bow)', async () => {
+    const { searchLibrary } = await import('@/components/side/libraryItems');
+    const { fresh } = await import('../fixtures/scenes');
+    const { store } = fresh();
+    const ui = { notify: () => {}, notifyUndo: () => {} };
+    expect(searchLibrary(store, ui, 'greeting', 'motions').map((it) => it.name)).toContain('Bow');
+    expect(searchLibrary(store, ui, 'Bow', 'motions').map((it) => it.name)).toContain('Bow');
+  });
+});

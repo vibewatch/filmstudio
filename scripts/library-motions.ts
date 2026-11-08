@@ -24,6 +24,7 @@ import { HAND_PRESETS, cloneHand } from '../lib/hands';
 import { anglesOf, bonesOf, type Angles } from '../lib/pose';
 import { STAGINGS } from '../lib/stagings';
 import type { MOTION_GROUPS } from '../lib/motions';
+import { MOTION_SOURCES, type MotionSource } from '../lib/librarymotions';
 import type { Clip, ClipContact, Figure, JointName, Pose } from '../lib/types';
 
 type MotionGroup = (typeof MOTION_GROUPS)[number];
@@ -517,6 +518,15 @@ const asCaptured = (clip: Clip): Clip => ({ ...clip, parts: clip.parts.map((p) =
  * getting out starts.
  */
 // (Swimming, captured on the floor: at the water's surface, 1.1 m up.)
+// Where a motion comes from, when not Mixamo's captures (credited beside it in the Library, and in CREDITS.txt).
+const SOURCE: Record<string, MotionSource> = {
+  'Descending Stairs': 'cmu',
+  ...Object.fromEntries(['Walk Carrying Box', 'Fix Kneeling', 'Plant Seeds', 'Pull Up Plants', 'Arms Folded', 'Formal Walk', 'Swim Crawl'].map((f) => [f, 'quaternius' as const])),
+  ...Object.fromEntries(['Beckon', 'Celebrate', 'Cover Face', 'Walk Exhausted', 'Knock On Door', 'Meditate', 'Take Photo', 'Scratch Head', 'Tie Shoelaces', 'Sneeze', 'Stir Pot', 'Check Time', 'Rock Baby', 'Pace', 'Pull Rope', 'Chop Wood', 'Eat', 'Water Plants', 'Hammer Nail', 'Get Up From Back', 'Petting Animal'].map((f) => [f, 'snapmogen' as const])),
+  'Kpop Dance': 'movens',
+};
+for (const name of Object.keys(SOURCE)) if (!LIST[name]) throw new Error(`SOURCE names ${name}, not a motion in LIST`);
+
 const RAISED: Record<string, number> = { 'Driving': 0.227, 'Jostled Passenger': 0.25, 'Swim Crawl': 0.7 };
 const raised = (clip: Clip): Clip => (!RAISED[clip.name] ? clip : {
   ...clip, parts: clip.parts.map((p) => ({ ...p, tracks: p.tracks.map((t) => (t.name !== 'hips.position' ? t : { ...t, values: t.values.map((v, i) => (i % 3 === 1 ? round(v + RAISED[clip.name]) : v)) })) })),
@@ -659,7 +669,7 @@ for (const p of MADE_PAIRS) out.push({ file: p.file, clip: madePair(p), group: p
 
 await rm(to, { recursive: true, force: true });
 await mkdir(to, { recursive: true });
-const index: { id: string; name: string; duration: number; people: number; group: MotionGroup; loop?: true; impact?: number; seat?: 'start' | 'end'; car?: 'start' | 'end' | 'passenger'; needs?: { kind?: 'water' | 'dog'; at: [number, number]; size: [number, number, number]; turn?: number }; move: [number, number]; turn: number; reach?: [number, number, number]; partner?: { at: [number, number]; facing: number } }[] = [];
+const index: { id: string; name: string; duration: number; people: number; group: MotionGroup; loop?: true; impact?: number; seat?: 'start' | 'end'; car?: 'start' | 'end' | 'passenger'; needs?: { kind?: 'water' | 'dog'; at: [number, number]; size: [number, number, number]; turn?: number }; source?: MotionSource; move: [number, number]; turn: number; reach?: [number, number, number]; partner?: { at: [number, number]; facing: number } }[] = [];
 
 for (const { file, clip, group, loop, impact } of out.sort((a, b) => a.clip.name.localeCompare(b.clip.name))) {
   const id = `library:${slug(file)}`;
@@ -675,10 +685,17 @@ for (const { file, clip, group, loop, impact } of out.sort((a, b) => a.clip.name
     ...(SEATED[file] ? { seat: SEATED[file] } : {}),
     ...(IN_CAR[file] ? { car: IN_CAR[file] } : {}),
     ...(NEEDS[file] ? { needs: NEEDS[file] } : {}),
+    ...(SOURCE[file] ? { source: SOURCE[file] } : {}),
     // (Where it takes its person, and where a strike lands: lib/strike.ts clipCourse.)
     ...clipCourse(ready, impact),
   });
 }
 await writeFile(join(to, 'index.json'), JSON.stringify(index, null, 1) + '\n');
+// Who made them.
+const bySource = (s: MotionSource) => index.filter((m) => m.source === s).map((m) => `  ${m.name}`).join('\n');
+await writeFile(join(to, 'CREDITS.txt'), [
+  'The Library\'s motions. Unless named below, they are Mixamo\'s captures (mixamo.com, Adobe).',
+  ...(Object.keys(MOTION_SOURCES) as MotionSource[]).map((s) => `\n${MOTION_SOURCES[s]}:\n${bySource(s)}`),
+].join('\n') + '\n');
 rig.dispose();
 console.log(`${index.length} motions in ${to} (${index.filter((m) => m.loop).length} loop, ${PAIRS.length + MADE_PAIRS.length} of two people, ${MIRRORED.length} left out as mirrored, ${HALVES.length} halves of two people's, put together or left out)`);

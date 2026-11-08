@@ -5,6 +5,7 @@ import { applyMotion, setAnimationOptions, startAnimation } from '@/lib/actions'
 import { actionsOf, figurePoseAt, propWorldAt } from '@/lib/evaluate';
 import { GAITS } from '@/lib/locomotion';
 import { Ink } from '@/lib/ink';
+import { MOTION_SOURCES } from '@/lib/librarymotions';
 import { CAR_DRIVER, PropObject } from '@/lib/props';
 import { checkMotion } from '@/lib/qa';
 import { Rig } from '@/lib/relations';
@@ -202,6 +203,17 @@ describe('motions, round 4 (#61)', () => {
     const tackle = actionsOf(store.scene.animation!, a).find((x) => x.source.kind === 'clip')!;
     expect(tackle.roles.map((r) => r.figure)[0]).toBe(a);
     expect(tackle.roles).toHaveLength(2);
+  });
+
+  it('a motion not from Mixamo says where it comes from (beside it in the Library, and in CREDITS.txt)', () => {
+    const credits = readFileSync('public/motions/CREDITS.txt', 'utf8');
+    const sourced = (index as { name: string; source?: string }[]).filter((m) => m.source);
+    expect(sourced.length).toBeGreaterThan(20);
+    for (const m of sourced) {
+      expect(Object.keys(MOTION_SOURCES), m.name).toContain(m.source);
+      expect(credits, m.name).toContain(`  ${m.name}\n`);
+    }
+    expect((index as { name: string; source?: string }[]).find((m) => m.name === 'Swim')?.source).toBe('quaternius');
   });
 
   it('toes turn smoothly: no Library motion turns them more than 20° in a frame (as captured they flicked 40° as a foot left the floor)', () => {

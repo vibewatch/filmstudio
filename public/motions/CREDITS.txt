@@ -1,0 +1,39 @@
+The Library's motions. Unless named below, they are Mixamo's captures (mixamo.com, Adobe).
+
+Animated by Quaternius (Universal Animation Library, CC0):
+  Fix something, kneeling
+  Plant seeds
+  Pull up plants
+  Stand, arms folded
+  Swim
+  Walk carrying a box
+  Walk, formal
+
+Captured for the SnapMoGen dataset (used with permission):
+  Beckon
+  Celebrate, shaking fists
+  Check the time, impatient
+  Chop wood
+  Cover your face
+  Eat an apple
+  Get up from lying on your back
+  Hammer a nail
+  Knock on a door
+  Meditate, sitting cross-legged
+  Pace back and forth
+  Pet a dog
+  Pull a rope
+  Rock a baby
+  Scratch your head
+  Sneeze
+  Stir a pot
+  Take a photo
+  Tie your shoelaces
+  Walk, exhausted
+  Water the plants
+
+From the Movens-5M dataset (used with permission):
+  K-pop
+
+From the CMU Graphics Lab Motion Capture Database (mocap.cs.cmu.edu):
+  Walk down stairs

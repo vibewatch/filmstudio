@@ -157,6 +157,7 @@
   "duration": 5.07,
   "people": 1,
   "group": "Talking & gestures",
+  "source": "snapmogen",
   "move": [
    0.013,
    -0.02
@@ -344,6 +345,7 @@
   "duration": 7.729999999999999,
   "people": 1,
   "group": "Feelings",
+  "source": "snapmogen",
   "move": [
    -0.02,
    0.053
@@ -356,6 +358,7 @@
   "duration": 8.100000000000001,
   "people": 1,
   "group": "Standing & waiting",
+  "source": "snapmogen",
   "move": [
    -0.084,
    0.089
@@ -420,6 +423,7 @@
   "duration": 4.3999999999999995,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -1.069,
    0.542
@@ -485,6 +489,7 @@
   "duration": 8.7,
   "people": 1,
   "group": "Feelings",
+  "source": "snapmogen",
   "move": [
    0.172,
    0.551
@@ -738,6 +743,7 @@
   "duration": 5.16,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -0.061,
    0.654
@@ -837,6 +843,7 @@
   "duration": 5.2,
   "people": 1,
   "group": "Using things",
+  "source": "quaternius",
   "move": [
    0,
    0
@@ -967,6 +974,7 @@
   "duration": 5.77,
   "people": 1,
   "group": "Sitting & lying",
+  "source": "snapmogen",
   "move": [
    -0.846,
    -0.915
@@ -1202,6 +1210,7 @@
   "duration": 9.43,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -0.114,
    0.06
@@ -1590,6 +1599,7 @@
   "duration": 18.667,
   "people": 1,
   "group": "Dance",
+  "source": "movens",
   "move": [
    0.779,
    1.594
@@ -1733,6 +1743,7 @@
   "duration": 5,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -0.068,
    -0.02
@@ -2014,6 +2025,7 @@
   "duration": 13.37,
   "people": 1,
   "group": "Sitting & lying",
+  "source": "snapmogen",
   "move": [
    -0.024,
    -0.163
@@ -2088,6 +2100,7 @@
   "duration": 7.24,
   "people": 1,
   "group": "Standing & waiting",
+  "source": "snapmogen",
   "move": [
    1.033,
    0.563
@@ -2143,6 +2156,7 @@
    ],
    "turn": 180
   },
+  "source": "snapmogen",
   "move": [
    0.037,
    -0.043
@@ -2193,6 +2207,7 @@
   "duration": 2.767,
   "people": 1,
   "group": "Using things",
+  "source": "quaternius",
   "move": [
    0,
    0
@@ -2320,6 +2335,7 @@
   "duration": 5.6,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -1.814,
    -1.488
@@ -2344,6 +2360,7 @@
   "duration": 2.5,
   "people": 1,
   "group": "Using things",
+  "source": "quaternius",
   "move": [
    0,
    0
@@ -2517,6 +2534,7 @@
   "duration": 8.83,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -0.213,
    0.025
@@ -2774,6 +2792,7 @@
   "duration": 6.029999999999999,
   "people": 1,
   "group": "Talking & gestures",
+  "source": "snapmogen",
   "move": [
    -0.015,
    0.025
@@ -3139,6 +3158,7 @@
   "duration": 5.700000000000001,
   "people": 1,
   "group": "Standing & waiting",
+  "source": "snapmogen",
   "move": [
    0,
    0.017
@@ -3203,6 +3223,7 @@
   "people": 1,
   "group": "Standing & waiting",
   "loop": true,
+  "source": "quaternius",
   "move": [
    0,
    0
@@ -3279,6 +3300,7 @@
   "duration": 6.9,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    0.004,
    -0.04
@@ -3371,6 +3393,7 @@
     10
    ]
   },
+  "source": "quaternius",
   "move": [
    0,
    3.267
@@ -3488,6 +3511,7 @@
   "duration": 9.159999999999998,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -0.044,
    0.021
@@ -3686,6 +3710,7 @@
   "duration": 13.5,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -0.022,
    0.048
@@ -3879,6 +3904,7 @@
   "people": 1,
   "group": "Using things",
   "loop": true,
+  "source": "quaternius",
   "move": [
    0,
    1.464
@@ -3891,6 +3917,7 @@
   "duration": 3.4000000000000004,
   "people": 1,
   "group": "Moving",
+  "source": "cmu",
   "move": [
    0.008,
    0.887
@@ -4058,6 +4085,7 @@
   "duration": 9.27,
   "people": 1,
   "group": "Moving",
+  "source": "snapmogen",
   "move": [
    -2.276,
    4.048
@@ -4071,6 +4099,7 @@
   "people": 1,
   "group": "Moving",
   "loop": true,
+  "source": "quaternius",
   "move": [
    0,
    1.464
@@ -4225,6 +4254,7 @@
   "duration": 9.329999999999998,
   "people": 1,
   "group": "Using things",
+  "source": "snapmogen",
   "move": [
    -0.952,
    -0.155
