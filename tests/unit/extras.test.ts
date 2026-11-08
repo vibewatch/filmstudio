@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { addExtras, setDirector, setSceneSet, startAnimation } from '@/lib/actions';
 import { cameraAt } from '@/lib/cameras';
 import { castCoverage, coverageById } from '@/lib/coverage';
-import { parseScene } from '@/lib/doc';
+import { newProp, parseScene } from '@/lib/doc';
 import { figurePoseAt } from '@/lib/evaluate';
 import { checkMotion } from '@/lib/qa';
 import { setBlocks, setFootprints } from '@/lib/sets';
@@ -37,6 +37,22 @@ describe('extras passing by (#57)', () => {
     expect(store.scene.coverage!.roles.A).toBe(a);
     // Clean: nobody walks into anyone; their steps are theirs.
     expect(checkMotion(store.scene).filter((i) => i.kind !== 'camera' && i.kind !== 'hidden').map((i) => i.message)).toEqual([]);
+  });
+
+  it('keep out of water (a pool behind the cast: they walk round it, not through it)', () => {
+    const { store } = fresh();
+    startAnimation(store, 12);
+    const view = cameraAt(store.scene, 0, 16 / 9);
+    const ahead = new THREE.Vector3().subVectors(view.target, view.position).setY(0).normalize();
+    const c = ahead.clone().multiplyScalar(4);
+    store.updateScene((s) => ({ ...s, props: [...s.props, { ...newProp('water', [c.x, 0, c.z]), scale: [3, 1.1, 3] }] }));
+    addExtras(store, 4);
+    for (const f of store.scene.figures.filter((x) => x.extra)) {
+      for (let t = 0; t <= 12; t += 0.5) {
+        const p = figurePoseAt(store.scene, f.id, t)!.position;
+        expect(Math.abs(p[0] - c.x) < 1.5 && Math.abs(p[2] - c.z) < 1.5, `${f.name} at ${t}`).toBe(false);
+      }
+    }
   });
 
   it('in a set, their lanes stop short of its walls (in the office); kept with the scene', () => {

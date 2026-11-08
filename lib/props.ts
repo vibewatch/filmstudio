@@ -394,14 +394,14 @@ export class PropObject {
 const bounds = new Map<string, THREE.Box3>();
 let boundsInk: Ink | null = null;
 
-/** A kind's extent in its own frame (at scale 1). */
+/** A kind's extent in its own frame (at scale 1): its solid parts', or all its parts where none is solid (water). */
 export function localBounds(kind: Prop['kind']) {
   let b = bounds.get(kind);
   if (!b) {
     const o = new PropObject(boundsInk ??= new Ink(), kind, 'bounds');
     o.apply({ id: 'bounds', name: '', kind, position: [0, 0, 0], rotation: [0, 0, 0], scale: [1, 1, 1] });
     b = new THREE.Box3();
-    for (const m of o.solids) b.expandByObject(m);
+    for (const m of o.solids.length ? o.solids : o.parts.bodies) b.expandByObject(m);
     o.dispose();
     bounds.set(kind, b);
   }
