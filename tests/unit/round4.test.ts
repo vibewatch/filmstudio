@@ -132,6 +132,22 @@ describe('motions, round 4 (#61)', () => {
     expect(checkMotion(store.scene).filter((i) => i.kind === 'overlap').map((i) => i.message)).toEqual([]);
   });
 
+  it('the mimed motions bring what they mime: a phone for a photo, a bowl and a spoon, a baby (lying level along the forearm), an axe, a hammer, a watering can, an apple; petting a dog brings a dog; nobody goes through them', () => {
+    for (const [slug, gear] of [['take-photo', ['phone']], ['stir-pot', ['bowl', 'spoon']], ['rock-baby', ['baby']], ['chop-wood', ['axe']], ['hammer-nail', ['hammer']], ['water-plants', ['can']], ['eat', ['apple']], ['petting-animal', ['dog']]] as const) {
+      const { store, a } = fresh();
+      startAnimation(store, 10);
+      setAnimationOptions(store, { loop: false });
+      applyMotion(store, a, captured(slug));
+      expect(store.scene.props.map((p) => p.kind).sort(), slug).toEqual([...gear].sort());
+      expect(checkMotion(store.scene).filter((i) => i.kind === 'overlap').map((i) => i.message), slug).toEqual([]);
+      if (slug === 'rock-baby') {
+        const w = propWorldAt(store.scene, store.scene.props[0].id, 2)!;
+        const up = new THREE.Vector3(0, 1, 0).applyEuler(new THREE.Euler(w.rotation[0] * D2R, w.rotation[1] * D2R, w.rotation[2] * D2R));
+        expect(up.y).toBeGreaterThan(0.99);
+      }
+    }
+  });
+
   it('a motion recorded on a low seat (Drink, sitting: the knees up) brings a lower chair, not one its thighs go through; the others the usual one', () => {
     for (const [slug, high] of [['sitting-drinking', 0.75], ['sitting-idle', 1]] as const) {
       const { store, a } = fresh();

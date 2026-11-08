@@ -17,7 +17,7 @@ import { PROP_LABELS, type BodyParams, type Figure, type Pose, type Prop, type P
 const D2R = Math.PI / 180;
 
 /** Kinds that make sense in a hand (the handheld ones, a ball, a small box). */
-export const HOLDABLE: readonly PropKind[] = ['stick', 'ring', 'ribbon', 'phone', 'cup', 'book', 'pistol', 'rifle', 'sword', 'knife', 'shield', 'bat', 'club', 'bag', 'bow', 'dumbbell', 'kettlebell', 'barbell', 'sphere', 'box'];
+export const HOLDABLE: readonly PropKind[] = ['stick', 'ring', 'ribbon', 'phone', 'cup', 'book', 'pistol', 'rifle', 'sword', 'knife', 'shield', 'bat', 'club', 'bag', 'bow', 'dumbbell', 'kettlebell', 'barbell', 'bowl', 'spoon', 'baby', 'axe', 'hammer', 'can', 'apple', 'sphere', 'box'];
 
 /**
  * Where a prop sits in the hand of a figure with `body`: by its first handle (in the fist, its
@@ -58,6 +58,19 @@ export function grip(prop: Pick<Prop, 'kind' | 'scale' | 'handles'>, hand: Side,
       return { position: at(0.02, -0.085, -0.13), rotation: [90, 0, 0] };
     case 'barbell': // overhand, 0.4 m from its middle: the bar on from the thumb, across to the other hand
       return { position: at(0.02, -0.305, 0.4), rotation: [0, -90, 0] };
+    case 'bowl': // (held level, the bowl upright and the baby along the forearm: lib/propmotion.ts)
+    case 'baby':
+      return { position: at(0.03, -0.06, 0), rotation: [0, 0, 0] };
+    case 'spoon': // near the end of its handle, the scoop below the fist
+      return { position: at(0.02, -0.085, -0.25), rotation: [90, 0, 0] };
+    case 'axe': // both hands near the end of its handle
+      return { position: at(0.02, -0.085, -0.12), rotation: [90, 0, 0] };
+    case 'hammer':
+      return { position: at(0.02, -0.085, -0.07), rotation: [90, 0, 0] };
+    case 'apple': // in the fingers, on the palm's side
+      return { position: at(0.075, -0.1, -0.04), rotation: [0, 0, 0] };
+    case 'can': // by its handle, below the hand (as the hand is turned, palm down), its spout on along the fingers
+      return { position: at(0.29, -0.095, 0), rotation: [90, 0, s > 0 ? -90 : 90] };
     case 'kettlebell': // hanging from the fingers by its handle
       return { position: at(0.03, -0.3, 0), rotation: [0, 90, 0] };
     case 'bat':
@@ -109,6 +122,13 @@ export const GEAR: Record<string, { kind: PropKind; hand: Side; between?: boolea
   'sitting-drinking': [{ kind: 'cup', hand: 'R' }],
   carrying: [{ kind: 'box', hand: 'R', between: true }],
   'walk-carrying-box': [{ kind: 'box', hand: 'R', between: true }],
+  'take-photo': [{ kind: 'phone', hand: 'R' }],
+  'stir-pot': [{ kind: 'bowl', hand: 'L' }, { kind: 'spoon', hand: 'R' }],
+  'rock-baby': [{ kind: 'baby', hand: 'L' }],
+  'chop-wood': [{ kind: 'axe', hand: 'R' }],
+  'hammer-nail': [{ kind: 'hammer', hand: 'R' }],
+  'water-plants': [{ kind: 'can', hand: 'R' }],
+  eat: [{ kind: 'apple', hand: 'L' }],
   ...Object.fromEntries(['standing-equip-bow', 'standing-draw-arrow', 'standing-aim-idle', 'standing-aim-recoil', 'standing-aim-walk-forward', 'standing-disarm-bow', 'shooting-arrow'].map((m) => [m, [{ kind: 'bow' as const, hand: 'L' as const }]])),
   'bicep-curl': [{ kind: 'dumbbell', hand: 'R' }, { kind: 'dumbbell', hand: 'L' }],
   'kettlebell-swing': [{ kind: 'kettlebell', hand: 'R' }],

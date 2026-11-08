@@ -144,6 +144,35 @@ function pieces(kind: PropKind): Piece[] {
       return [[new THREE.SphereGeometry(0.11, 24, 16), [0, 0.11, 0]], [new THREE.TorusGeometry(0.075, 0.014, 8, 20, Math.PI), [0, 0.19, 0]]];
     case 'barbell': // lying on its plates, along x
       return [[cylinder(0.014, 2, 0.004).rotateZ(Math.PI / 2), [0, 0.22, 0]], [cylinder(0.22, 0.05, 0.01).rotateZ(Math.PI / 2), [0.8, 0.22, 0]], [cylinder(0.22, 0.05, 0.01).rotateZ(Math.PI / 2), [-0.8, 0.22, 0]]];
+    case 'bowl': { // a mixing bowl on its base, open at the top (held on the palm)
+      const p = [[0, 0], [0.05, 0.004], [0.085, 0.035], [0.095, 0.075], [0.088, 0.077], [0.078, 0.04], [0.045, 0.012], [0, 0.009]].map(([x, y]) => new THREE.Vector2(x, y));
+      return [[new THREE.LatheGeometry(p, 24), [0, 0, 0]]];
+    }
+    case 'spoon': // its scoop on the floor, the handle up from it (held near its end, the scoop below the fist)
+      return [[new THREE.SphereGeometry(0.022, 12, 8).scale(1, 0.35, 1.5), [0, 0.008, 0]], [cylinder(0.005, 0.27, 0.002), [0, 0.15, 0.02]]];
+    case 'baby': // swaddled, lying along z, its head at +z
+      return [[new THREE.CapsuleGeometry(0.085, 0.2, 6, 12).rotateX(Math.PI / 2), [0, 0.085, -0.03]], [new THREE.SphereGeometry(0.07, 16, 12), [0, 0.09, 0.19]]];
+    case 'axe': // its handle up from the floor, the head at the top, its edge ahead (+z)
+      return [[cylinder(0.016, 0.75, 0.005), [0, 0.375, 0]], [box(0.025, 0.1, 0.17, 0.006), [0, 0.7, 0.05]]];
+    case 'hammer':
+      return [[cylinder(0.012, 0.32, 0.004), [0, 0.16, 0]], [box(0.034, 0.034, 0.12, 0.006), [0, 0.32, 0.01]]];
+    case 'can': { // a watering can, its spout ahead (+z), its handle over the top
+      const spout = cylinder(0.01, 0.26, 0.003).rotateX(Math.PI / 3);
+      return [[cylinder(0.09, 0.2, 0.01), [0, 0.1, 0]], [spout, [0, 0.2, 0.17]], [new THREE.TorusGeometry(0.07, 0.01, 8, 20, Math.PI), [0, 0.2, -0.01]]];
+    }
+    case 'apple':
+      return [[new THREE.SphereGeometry(0.04, 16, 12), [0, 0.04, 0]], [cylinder(0.003, 0.02, 0.001), [0, 0.085, 0]]];
+    case 'dog': { // a big dog standing, facing +z: its head 0.8 m up at the front
+      const legs: Piece[] = [[1, 1], [1, -1], [-1, 1], [-1, -1]].map(([x, z]) => [cylinder(0.035, 0.42, 0.01), [x * 0.09, 0.21, z * 0.24]]);
+      return [
+        [new THREE.CapsuleGeometry(0.14, 0.42, 6, 12).rotateX(Math.PI / 2), [0, 0.5, 0]],
+        [cylinder(0.07, 0.22, 0.02).rotateX(-Math.PI / 5), [0, 0.64, 0.32]],
+        [new THREE.SphereGeometry(0.1, 16, 12), [0, 0.74, 0.42]],
+        [box(0.08, 0.07, 0.12, 0.02), [0, 0.71, 0.53]],
+        [cylinder(0.02, 0.3, 0.01).rotateX(-Math.PI / 4), [0, 0.6, -0.4]],
+        ...legs,
+      ];
+    }
     case 'water': // a pool's water, its surface 1 m up (scaled): drawn see-through, and not solid
       return [[box(1, 1, 1, 0.002), [0, 0.5, 0], false]];
     case 'chair': {

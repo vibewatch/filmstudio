@@ -23,7 +23,7 @@ const ALSO: Record<string, string[]> = {
   floor: ['ground', 'lie', 'lying', 'crawl', 'kneel'], sleep: ['sleep', 'lie'], rest: ['idle', 'sit', 'lie'],
   love: ['kiss', 'hug', 'blow a kiss'], romance: ['kiss', 'hug', 'blow a kiss'], party: ['dance', 'cheer', 'clap', 'drink'],
   stunt: ['roll', 'flip', 'vault', 'slide', 'cartwheel', 'jump'], parkour: ['vault', 'roll', 'jump'],
-  tired: ['exhausted', 'yawn'], impatient: ['check the time'], watch: ['check the time'], camera: ['photo'], cook: ['stir'], kitchen: ['stir', 'eat'], dog: ['pet an animal'], cat: ['pet an animal'], yoga: ['meditate'], door: ['door'], shoe: ['shoe'],
+  tired: ['exhausted', 'yawn'], impatient: ['check the time'], watch: ['check the time'], camera: ['photo'], cook: ['stir'], kitchen: ['stir', 'eat'], dog: ['pet a dog'], pet: ['pet a dog'], animal: ['pet a dog'], yoga: ['meditate'], door: ['door'], shoe: ['shoe'],
   embarrassed: ['cover your face'], shame: ['cover your face'], confused: ['scratch your head', 'shrug'], win: ['celebrate', 'cheer', 'victory'], victory: ['celebrate', 'victory'], ill: ['sneeze', 'cough'], sick: ['sneeze', 'cough'],
   pool: ['swim', 'tread water'], water: ['swim', 'tread water', 'water the'], swimming: ['swim', 'tread water'],
   baby: ['rock a baby'], child: ['rock a baby'], tug: ['pull a rope'], kpop: ['k-pop'], waiting: ['pace', 'check the time', 'bored', 'idle'], nervous: ['nervous', 'pace'], worried: ['pace', 'nervous'],

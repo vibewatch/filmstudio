@@ -457,10 +457,36 @@ export function placeInWorld(p: Prop, figureAt: FigureAt, t: number): { position
 }
 
 /**
+ * Held level whichever way the hand turns (captures without the hand's own turn have it turn as
+ * the forearm does): a bowl upright on the palm, a baby lying along the forearm, its head toward
+ * the elbow.
+ */
+const LEVEL: readonly Prop['kind'][] = ['bowl', 'baby'];
+
+function levelMatrix(p: Prop, figureAt: FigureAt, hold: { figure: string; hand: Side }, t: number): THREE.Matrix4 | null {
+  const f = figureAt(hold.figure, t);
+  if (!f) return null;
+  rig ??= new Rig();
+  const j = rig.model(f).joints;
+  const [wrist, elbow] = (hold.hand === 'L' ? [j.leftHand, j.leftLowerArm] : [j.rightHand, j.rightLowerArm]).map((x) => x.getWorldPosition(new THREE.Vector3()));
+  const s = p.scale;
+  if (p.kind === 'bowl') {
+    const yaw = facingOf(f.bones) * D2R;
+    const at = wrist.clone().add(new THREE.Vector3(Math.sin(yaw) * 0.05, -0.06 * s[1], Math.cos(yaw) * 0.05));
+    return new THREE.Matrix4().compose(at, new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(...s));
+  }
+  const along = elbow.clone().sub(wrist).setY(0);
+  const yaw = along.lengthSq() > 1e-6 ? Math.atan2(along.x, along.z) : facingOf(f.bones) * D2R;
+  const at = wrist.clone().lerp(elbow, 0.45).add(new THREE.Vector3(0, 0.02, 0));
+  return new THREE.Matrix4().compose(at, new THREE.Quaternion().setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw), new THREE.Vector3(...s));
+}
+
+/**
  * Where a prop in a hand is in the world: as the hand has it or, carried by a handle (a stretcher,
- * a bench), level from the hand along the way the carrier faces.
+ * a bench), level from the hand along the way the carrier faces; one held level (LEVEL), so.
  */
 function heldMatrix(p: Prop, figureAt: FigureAt, hold: { figure: string; hand: Side }, local: { position: Vec3; rotation: Vec3 }, t: number): THREE.Matrix4 | null {
+  if (LEVEL.includes(p.kind)) return levelMatrix(p, figureAt, hold, t);
   const w = wristAt(figureAt, hold.figure, hold.hand, t);
   if (!w) return null;
   const m = w.multiply(compose(local.position, local.rotation));
@@ -471,9 +497,9 @@ function heldMatrix(p: Prop, figureAt: FigureAt, hold: { figure: string; hand: S
   return new THREE.Matrix4().makeTranslation(handle.clone().applyMatrix4(m)).multiply(turn).multiply(new THREE.Matrix4().makeTranslation(handle.negate()));
 }
 
-/** A prop in a hand, placed in it as it is in the world (a carried one kept level). */
+/** A prop in a hand, placed in it as it is in the world (a carried one kept level, one held level). */
 export function inHand(p: Prop, figureAt: FigureAt, t: number): Prop {
-  if (!p.hold || handlesOf(p).length < 2) return p;
+  if (!p.hold || (handlesOf(p).length < 2 && !LEVEL.includes(p.kind))) return p;
   const m = heldMatrix(p, figureAt, p.hold, p, t);
   const w = wristAt(figureAt, p.hold.figure, p.hold.hand, t);
   return m && w ? { ...p, ...decompose(w.invert().multiply(m)) } : p;

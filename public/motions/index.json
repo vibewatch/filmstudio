@@ -2126,16 +2126,28 @@
  },
  {
   "id": "library:petting-animal",
-  "name": "Pet an animal",
-  "duration": 14.167,
+  "name": "Pet a dog",
+  "duration": 5.03,
   "people": 1,
   "group": "Using things",
-  "loop": true,
+  "needs": {
+   "kind": "dog",
+   "at": [
+    0.1,
+    0.92
+   ],
+   "size": [
+    1,
+    1,
+    1
+   ],
+   "turn": 180
+  },
   "move": [
-   0,
-   0
+   0.037,
+   -0.043
   ],
-  "turn": 0
+  "turn": -12
  },
  {
   "id": "library:pick-fruit",

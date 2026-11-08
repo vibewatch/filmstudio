@@ -1,6 +1,6 @@
 import {
-  Armchair, BookOpen, BowArrow, Box, BrickWall, Brush, Car, Circle, CircleDashed, Coffee, Cylinder, Disc, Goal, Minus, PenTool, PencilLine, RectangleHorizontal, Rows3,
-  Crosshair, Droplets, Dumbbell, FlagTriangleRight, Grid2x2, Handbag, PocketKnife, Ribbon, Shield, Slash, Smartphone, Smile, SeparatorHorizontal, Sun, Sword, Target, Wand, Waves, Weight, WeightTilde,
+  Apple, Armchair, Axe, Baby, BookOpen, BowArrow, Box, BrickWall, Brush, Car, Circle, CircleDashed, Coffee, Cylinder, Disc, Goal, Minus, PenTool, PencilLine, RectangleHorizontal, Rows3,
+  Crosshair, Dog, Droplets, Dumbbell, Hammer, FlagTriangleRight, Grid2x2, Handbag, PocketKnife, Ribbon, Shield, Slash, Smartphone, Smile, SeparatorHorizontal, Soup, Sprout, Utensils, Sun, Sword, Target, Wand, Waves, Weight, WeightTilde,
   type LucideIcon,
 } from 'lucide-react';
 import type { PropKind, Style } from '@/lib/types';
@@ -37,6 +37,14 @@ export const PROP_ICONS: Record<PropKind, LucideIcon> = {
   barbell: WeightTilde,
   car: Car,
   water: Waves,
+  bowl: Soup,
+  spoon: Utensils,
+  baby: Baby,
+  axe: Axe,
+  hammer: Hammer,
+  can: Sprout,
+  apple: Apple,
+  dog: Dog,
 };
 
 /** Icon per render style (toolbar menu, export / practice pickers). */

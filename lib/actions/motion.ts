@@ -358,12 +358,12 @@ function seatUnder(store: Store, figureId: string, motionId: string, start: numb
 }
 
 /**
- * A motion over or off a box (vaulting one, jumping down off one), or done in water (swimming), given
+ * A motion over or off a box (vaulting one, jumping down off one), done in water (swimming) or to a dog (petting it), given
  * where there is none: one is put where the motion has it, as big as it has it, square to the way
  * they start. (Water is there already where they start in some; a box within half a metre of where it goes.)
  */
 function propNeeded(store: Store, figureId: string, motionId: string, start: number) {
-  const need = (LIBRARY_INDEX as unknown as { id: string; needs?: { kind?: 'water'; at: [number, number]; size: Vec3 } }[]).find((m) => m.id === motionId)?.needs;
+  const need = (LIBRARY_INDEX as unknown as { id: string; needs?: { kind?: 'water' | 'dog'; at: [number, number]; size: Vec3; turn?: number } }[]).find((m) => m.id === motionId)?.needs;
   const act = need && actionsOf(store.scene.animation!, figureId).find((x) => x.source.kind === 'clip' && x.source.clip === motionId && Math.abs(x.start - start) < 1e-3);
   const marks = act && marksOf(store.scene, act, figureId);
   if (!need || !marks) return;
@@ -378,7 +378,7 @@ function propNeeded(store: Store, figureId: string, motionId: string, start: num
   };
   if (store.scene.props.some((p) => !p.hold && p.kind === kind && (kind === 'water' ? within(p) : Math.hypot(p.position[0] - bx, p.position[2] - bz) < 0.5))) return;
   const r3 = (v: number) => Math.round(v * 1000) / 1000 || 0;
-  store.updateScene((s) => ({ ...s, props: [...s.props, { ...newProp(kind, [r3(bx), 0, r3(bz)], nextName(PROP_LABELS[kind], s.props.map((p) => p.name))), rotation: [0, Math.round(facing * 10) / 10 || 0, 0], scale: [...need.size] as Vec3 }] }));
+  store.updateScene((s) => ({ ...s, props: [...s.props, { ...newProp(kind, [r3(bx), 0, r3(bz)], nextName(PROP_LABELS[kind], s.props.map((p) => p.name))), rotation: [0, Math.round(wrapDeg(facing + (need.turn ?? 0)) * 10) / 10 || 0, 0], scale: [...need.size] as Vec3 }] }));
 }
 
 /**
