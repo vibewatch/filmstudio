@@ -17,6 +17,8 @@ export async function sceneToGlb(scene: Scene, time = 0): Promise<Blob> {
   const sv = new SceneView();
   const skin = new THREE.MeshStandardMaterial({ name: 'Figure', color: '#e8e4dc', roughness: 0.8 });
   const surface = new THREE.MeshStandardMaterial({ name: 'Prop', color: '#c9c3b6', roughness: 0.7 });
+  // (Water see-through, as drawn.)
+  const water = new THREE.MeshStandardMaterial({ name: 'Water', color: '#5aa9e6', roughness: 0.1, transparent: true, opacity: 0.35 });
   try {
     const a = scene.animation;
     sv.sync(a ? sceneAt(scene, time) : scene);
@@ -99,7 +101,7 @@ export async function sceneToGlb(scene: Scene, time = 0): Promise<Blob> {
       node.name = unique(p.name);
       for (const mesh of o.parts.bodies) {
         if (!shown(mesh)) continue;
-        const part = new THREE.Mesh(mesh.geometry, surface);
+        const part = new THREE.Mesh(mesh.geometry, p.kind === 'water' ? water : surface);
         part.matrix.copy(o.object.matrixWorld.clone().invert().multiply(mesh.matrixWorld)).decompose(part.position, part.quaternion, part.scale);
         part.name = unique(`${p.name}_part`);
         node.add(part);
@@ -163,6 +165,7 @@ export async function sceneToGlb(scene: Scene, time = 0): Promise<Blob> {
   } finally {
     skin.dispose();
     surface.dispose();
+    water.dispose();
     sv.dispose();
   }
 }
