@@ -1,7 +1,8 @@
 import { describe, expect, it } from 'vitest';
 import { addFigure, addProp, deleteFigure, holdProp } from '@/lib/actions';
 import { newFigure, newProp, newScene, parseScene } from '@/lib/doc';
-import { released } from '@/lib/hold';
+import { HOLDABLE, released } from '@/lib/hold';
+import { HANDHELD, HANDHELD_GROUPS, PROP_KINDS } from '@/lib/types';
 import { SceneView } from '@/lib/sceneview';
 import { Store } from '@/lib/store';
 
@@ -16,6 +17,14 @@ class MemoryStorage implements Storage {
 }
 
 describe('props in the hand', () => {
+  it('every handheld prop is in one of the Add to set menu\'s groups, once, and can be held', () => {
+    expect(new Set(HANDHELD).size).toBe(HANDHELD.length);
+    for (const k of HANDHELD) expect(HOLDABLE, k).toContain(k);
+    expect(HANDHELD_GROUPS.every((g) => g.kinds.length > 0)).toBe(true);
+    // (What is not held stands on the floor: the rest of the kinds.)
+    expect(PROP_KINDS.filter((k) => !HANDHELD.includes(k)).length + HANDHELD.length).toBe(PROP_KINDS.length);
+  });
+
   it('a handheld prop goes into the selected figure\'s free hand, which grips it', () => {
     const store = new Store(new MemoryStorage());
     const id = store.figure!.id;

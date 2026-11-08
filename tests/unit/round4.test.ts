@@ -4,7 +4,8 @@ import { describe, expect, it } from 'vitest';
 import { applyMotion, setAnimationOptions, startAnimation } from '@/lib/actions';
 import { actionsOf, figurePoseAt, propWorldAt } from '@/lib/evaluate';
 import { GAITS } from '@/lib/locomotion';
-import { CAR_DRIVER } from '@/lib/props';
+import { Ink } from '@/lib/ink';
+import { CAR_DRIVER, PropObject } from '@/lib/props';
 import { checkMotion } from '@/lib/qa';
 import { Rig } from '@/lib/relations';
 import { groundOf } from '@/lib/surfaces';
@@ -129,6 +130,11 @@ describe('motions, round 4 (#61)', () => {
     expect(water.map((p) => p.scale[1])).toEqual([1.1]);
     expect(figurePoseAt(store.scene, a, 1)!.position[1]).toBeGreaterThan(0.9);
     expect(groundOf(store.scene.props)(water[0].position[0], water[0].position[2])).toBe(0);
+    // (See-through already: never faded as something in the way, so a click on it, where nothing is in it, picks it.)
+    const o = new PropObject(new Ink(), 'water', water[0].id);
+    o.setFade(true);
+    expect(o.parts.faded).toBe(false);
+    o.dispose();
     expect(checkMotion(store.scene).filter((i) => i.kind === 'overlap').map((i) => i.message)).toEqual([]);
   });
 

@@ -10,7 +10,7 @@ import { liveCamera } from '@/lib/cameras';
 import { MAX_LIGHTS, ROLE_NAMES, lightText, lightingName, lightingOf } from '@/lib/lighting';
 import { shotSpans } from '@/lib/shots';
 import { setById } from '@/lib/sets';
-import { HANDHELD, PROP_KINDS, PROP_LABELS, type Vec3 } from '@/lib/types';
+import { HANDHELD, HANDHELD_GROUPS, PROP_KINDS, PROP_LABELS, type Vec3 } from '@/lib/types';
 import { openContextMenu } from '../ContextMenu';
 import { PROP_ICONS } from '../icons';
 import { App, command, menu, placeOrAdd, shortcutOf, type Ctx } from '../commands';
@@ -147,11 +147,13 @@ export default function OutlineSection({ onPhoto, notify, notifyUndo }: Pick<Sec
                 { group: 'On the floor' },
                 // (Or dragged: onto the floor, at the drop point; a handheld one onto a figure, into its hand.)
                 ...PROP_KINDS.filter((k) => !HANDHELD.includes(k)).map((k) => ({ label: PROP_LABELS[k], icon: PROP_ICONS[k], onSelect: () => placeOrAdd(placingProp(store, k), () => addProp(store, k)), drag: { floor: (at: Vec3) => addProp(store, k, at) } })),
-                { group: 'In the hand' },
-                ...HANDHELD.map((k) => ({
-                  label: PROP_LABELS[k], icon: PROP_ICONS[k], onSelect: () => placeOrAdd(placingProp(store, k), () => addProp(store, k)),
-                  drag: { figure: (id: string) => { store.select({ kind: 'figure', figure: id }); addProp(store, k); } },
-                })),
+                ...HANDHELD_GROUPS.flatMap(({ group, kinds }) => [
+                  { group },
+                  ...kinds.map((k) => ({
+                    label: PROP_LABELS[k], icon: PROP_ICONS[k], onSelect: () => placeOrAdd(placingProp(store, k), () => addProp(store, k)),
+                    drag: { figure: (id: string) => { store.select({ kind: 'figure', figure: id }); addProp(store, k); } },
+                  })),
+                ]),
               ]}
             >
               <Plus size={16} strokeWidth={1.75} aria-hidden />

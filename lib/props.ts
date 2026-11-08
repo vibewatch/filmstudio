@@ -371,7 +371,8 @@ export class PropObject {
 
   /** See-through while it blocks the view of the figure being edited (editor only). */
   setFade(on: boolean) {
-    if (on === this.parts.faded) return;
+    // (Water is see-through already.)
+    if (on === this.parts.faded || this.parts.water) return;
     this.parts.faded = on;
     this.refresh();
   }

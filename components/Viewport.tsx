@@ -283,8 +283,11 @@ export default function Viewport({
       editLight(store, l.id, lightFrom(l, e.camera.position.clone().sub(e.point), e.point.toArray() as Vec3));
       return;
     }
-    // (A see-through prop, in front of the figure being edited, lets the click through.)
-    const o = partUnder(e.intersections, (x) => !(x.userData.prop && sv.props.get(x.userData.prop as string)?.parts.faded));
+    // (A see-through prop, in front of the figure being edited, lets the click through; water lets it
+    // through to what is in it or beyond, and is picked where there is nothing else.)
+    const seen = (x: THREE.Object3D) => !(x.userData.prop && sv.props.get(x.userData.prop as string)?.parts.faded);
+    const water = (x: THREE.Object3D) => !!x.userData.prop && !!sv.props.get(x.userData.prop as string)?.parts.water;
+    const o = partUnder(e.intersections, (x) => seen(x) && !water(x)) ?? partUnder(e.intersections, seen);
     if (!o) return;
     e.stopPropagation();
     // Shift-click: add it to what is selected (a figure as a whole), or take it away.
@@ -1306,6 +1309,8 @@ function Bridge({ sv, apiRef, frameRequest, sceneId, sceneView, shotMode, captur
           if (o?.visible) return { ...hit, camera: o.userData.camera as string, ...(o.userData.point !== undefined ? { point: o.userData.point as number } : {}) };
         }
         const under = ray.intersectObject(sv.root, true);
+        // (Water lets the pointer through to what is in it or beyond: itself where there is nothing else.)
+        let water: string | undefined;
         for (const { object, point } of under) {
           let o: THREE.Object3D | null = object;
           let shown = true;
@@ -1313,6 +1318,7 @@ function Bridge({ sv, apiRef, frameRequest, sceneId, sceneView, shotMode, captur
           if (!shown) continue;
           while (o && !o.userData.figure && !o.userData.prop) o = o.parent;
           if (o?.userData.prop && sv.props.get(o.userData.prop as string)?.parts.faded) continue;
+          if (o?.userData.prop && sv.props.get(o.userData.prop as string)?.parts.water) { water ??= o.userData.prop as string; continue; }
           if (o?.userData.prop) return { ...hit, prop: o.userData.prop as string };
           if (o?.userData.figure) {
             const id = o.userData.figure as string;
@@ -1323,7 +1329,7 @@ function Bridge({ sv, apiRef, frameRequest, sceneId, sceneView, shotMode, captur
             return { ...hit, figure: id, ...(part?.userData.joint ? { joint: part.userData.joint as JointName } : {}), ...(m && f && !f.proxy ? { contact: nearestContact(m, f, point).contact } : {}) };
           }
         }
-        return hit;
+        return water ? { ...hit, prop: water } : hit;
       },
     };
   }, [apiRef, camera, controls, sv, gl, rigRef, r3fScene, lampOf]);

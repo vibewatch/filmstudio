@@ -103,8 +103,13 @@ export const PROP_LABELS: Record<PropKind, string> = {
   bowl: 'Bowl', spoon: 'Spoon', baby: 'Baby', axe: 'Axe', hammer: 'Hammer', can: 'Watering can', apple: 'Apple', car: 'Car', water: 'Water', dog: 'Dog',
 };
 
-/** Props made to be held: added to the selected figure's hand. */
-export const HANDHELD: readonly PropKind[] = ['stick', 'ring', 'ribbon', 'phone', 'cup', 'book', 'pistol', 'rifle', 'sword', 'knife', 'shield', 'bat', 'club', 'bag', 'bow', 'dumbbell', 'kettlebell', 'barbell', 'bowl', 'spoon', 'baby', 'axe', 'hammer', 'can', 'apple'];
+/** Props made to be held (added to the selected figure's hand), as the Add to set menu groups them. */
+export const HANDHELD_GROUPS: readonly { group: string; kinds: readonly PropKind[] }[] = [
+  { group: 'In the hand', kinds: ['phone', 'cup', 'book', 'bag', 'bowl', 'spoon', 'apple', 'baby'] },
+  { group: 'In the hand: tools and sport', kinds: ['axe', 'hammer', 'can', 'stick', 'ring', 'ribbon', 'bat', 'club', 'dumbbell', 'kettlebell', 'barbell'] },
+  { group: 'In the hand: weapons', kinds: ['pistol', 'rifle', 'knife', 'sword', 'shield', 'bow'] },
+];
+export const HANDHELD: readonly PropKind[] = HANDHELD_GROUPS.flatMap((g) => g.kinds);
 
 export interface Prop {
   id: string;
