@@ -280,6 +280,8 @@ export class Ink {
   readonly faded = new THREE.MeshBasicMaterial({ color: '#c9ccd6', transparent: true, opacity: 0.2, depthWrite: false });
   /** Water: see-through blue, whatever the style. */
   readonly water = new THREE.MeshBasicMaterial({ color: '#5aa9e6', transparent: true, opacity: 0.35, depthWrite: false });
+  /** Water selected or under the pointer: still see-through (what is in it shows), in the accent. */
+  readonly waterSel = new THREE.MeshBasicMaterial({ color: '#3d63ff', transparent: true, opacity: 0.3, depthWrite: false });
   private baseThickness = 1.6;
   private style: Style = 'line';
   private materials = new Map<string, StyleMaterials>();
@@ -511,6 +513,7 @@ export class Ink {
     this.materials.clear();
     this.faded.dispose();
     this.water.dispose();
+    this.waterSel.dispose();
     for (const m of this.idMats.values()) m.dispose();
     this.idMats.clear();
     for (const m of this.twoSidedMats.values()) m.dispose();
@@ -627,7 +630,7 @@ export class InkedParts {
     const prop = this.kind === 'prop';
     for (const mesh of this.bodies) {
       const state = isSelected(mesh);
-      mesh.material = this.sided(mesh, this.water ? (state ? m.hover : this.ink.water) : this.faded ? this.ink.faded : state === 'hover' ? m.hover : prop ? (state ? m.propSel : m.prop) : state ? m.bodySel : m.body);
+      mesh.material = this.sided(mesh, this.water ? (state ? this.ink.waterSel : this.ink.water) : this.faded ? this.ink.faded : state === 'hover' ? m.hover : prop ? (state ? m.propSel : m.prop) : state ? m.bodySel : m.body);
       // (Cut out by its texture, a tree's leaves: filled flat as the shape of its leaves, from both sides.)
       if (mesh.userData.cutout && !this.faded && !this.water) mesh.material = this.ink.cutoutFill(prop ? m.prop : m.body, mesh.userData.cutout);
     }
