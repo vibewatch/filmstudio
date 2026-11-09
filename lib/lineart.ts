@@ -80,6 +80,9 @@ export class LineArtPass {
         // A fold of the same part: this side nearer than its neighbours across it, by more than a
         // slope would make it (their mean against it), so ramps and curves seen at a slant are not lines.
         float folds(vec4 c4, float z, vec2 dir) {
+          // (Not a set's: a ground, a sofa, are drawn by their parts' lines; a gently rolling ground
+          // seen far off and small, a storyboard's panel, would be banded with folds.)
+          if (drawsSilhouette(c4)) return 0.0;
           vec3 c = c4.rgb;
           vec2 a = vUv + dir * texel * radius, b = vUv - dir * texel * radius;
           vec3 ca = texture2D(tId, a).rgb, cb = texture2D(tId, b).rgb;
