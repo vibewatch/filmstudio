@@ -25,7 +25,7 @@ import { anglesOf, bonesOf, type Angles } from '../lib/pose';
 import { STAGINGS } from '../lib/stagings';
 import type { MOTION_GROUPS } from '../lib/motions';
 import { MOTION_SOURCES, type MotionSource } from '../lib/librarymotions';
-import type { Clip, ClipContact, Figure, JointName, Pose } from '../lib/types';
+import { FINGER_BONES, type Clip, type ClipContact, type Figure, type JointName, type Pose } from '../lib/types';
 
 type MotionGroup = (typeof MOTION_GROUPS)[number];
 
@@ -563,6 +563,59 @@ function softToes(clip: Clip): Clip {
     })),
   };
 }
+/**
+ * The fingers' keys thinned: a key that turning the short way from the key before to the one after
+ * would give to within half a degree is left out (the fingers' tracks are played so: lib/clip.ts
+ * slerpTrack). Fingers barely move in most captures, and were half the library's size.
+ */
+const FINGER_TRACKS = new Set<string>(FINGER_BONES.map((b) => `${b}.quaternion`));
+const THIN = (0.5 * Math.PI) / 180;
+function thinFingers(clip: Clip): Clip {
+  const [a, b, c] = [new THREE.Quaternion(), new THREE.Quaternion(), new THREE.Quaternion()];
+  const q = (v: number[], i: number, out: THREE.Quaternion) => out.fromArray(v, i * 4);
+  return { ...clip, parts: clip.parts.map((part) => ({ ...part, tracks: part.tracks.map((t) => {
+    if (!FINGER_TRACKS.has(t.name) || t.times.length < 3) return t;
+    const keep = [0];
+    let from = 0;
+    for (let to = 2; to < t.times.length; to++) {
+      // (Every key between the last kept and this one as the turn between them gives it.)
+      const fits = Array.from({ length: to - from - 1 }, (_, k) => from + 1 + k).every((k) => {
+        const u = (t.times[k] - t.times[from]) / (t.times[to] - t.times[from]);
+        return q(t.values, from, a).normalize().slerp(q(t.values, to, b).normalize(), u).angleTo(q(t.values, k, c).normalize()) <= THIN;
+      });
+      if (!fits) { keep.push(to - 1); from = to - 1; }
+    }
+    keep.push(t.times.length - 1);
+    return { ...t, times: keep.map((i) => t.times[i]), values: keep.flatMap((i) => t.values.slice(i * 4, i * 4 + 4)) };
+  }) })) };
+}
+
+/**
+ * The upper body's keys thinned where its turns are smooth: every other key left out (then every
+ * other of those) where the bone as played (lib/clip.ts samplePart) stays within a third of a degree
+ * of how it played with them all. Not the hips and legs (the feet are planted by them).
+ */
+const UPPER = new Set<string>(['spine', 'chest', 'upperChest', 'neck', 'head', 'leftShoulder', 'rightShoulder', 'leftUpperArm', 'rightUpperArm', 'leftLowerArm', 'rightLowerArm', 'leftHand', 'rightHand']);
+const BODY_THIN = Math.PI / 180 / 3;
+function thinUpperBody(clip: Clip): Clip {
+  const [p, q] = [new THREE.Quaternion(), new THREE.Quaternion()];
+  return { ...clip, parts: clip.parts.map((part) => ({ ...part, tracks: part.tracks.map((t) => {
+    const bone = t.name.slice(0, -'.quaternion'.length) as JointName;
+    if (!t.name.endsWith('.quaternion') || !UPPER.has(bone) || t.times.length < 5) return t;
+    const played = (track: typeof t) => t.times.map((time) => samplePart({ ...part, tracks: [track] }, time, clip.duration, false).bones[bone]);
+    const all = played(t);
+    let best = t;
+    for (let step = 2; step <= 4; step *= 2) {
+      const keep = t.times.map((_, i) => i).filter((i) => i % step === 0 || i === t.times.length - 1);
+      const thin = { ...t, times: keep.map((i) => t.times[i]), values: keep.flatMap((i) => t.values.slice(i * 4, i * 4 + 4)) };
+      const got = played(thin);
+      if (!got.every((g, i) => g && all[i] && p.fromArray(g).normalize().angleTo(q.fromArray(all[i]!).normalize()) <= BODY_THIN)) break;
+      best = thin;
+    }
+    return best;
+  }) })) };
+}
+
 const read = async (file: string) => softToes(level(refineClip(raised(asCaptured(parseClip(JSON.parse(await readFile(join(from, file), 'utf8')))!)))));
 const files = (await readdir(from)).filter((f) => f.endsWith('.clip.json')).sort();
 const clips = new Map<string, Clip>();
@@ -677,7 +730,7 @@ for (const { file, clip, group, loop, impact } of out.sort((a, b) => a.clip.name
   // (One that goes round where it stands, seamless: its end eased into its start. Not a walk or
   // run, which goes on from where it got to: by the file's name, what it is.)
   const ready: Clip = { ...(loop && !isCycle(file) && !CLIMBS.includes(file) ? seamless(clip) : clip), id, loop };
-  await writeFile(join(to, `${slug(file)}.json`), JSON.stringify(ready));
+  await writeFile(join(to, `${slug(file)}.json`), JSON.stringify(thinUpperBody(thinFingers(ready))));
   index.push({
     id, name: ready.name, duration: ready.duration, people: ready.parts.length, group,
     ...(loop ? { loop: true as const } : {}),

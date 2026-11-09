@@ -16,6 +16,15 @@ function focusables(root: HTMLElement) {
   );
 }
 
+/**
+ * Where a popup (a menu, a select's list) is put: in the dialog it opens from (one marked modal
+ * keeps assistive tools inside it), else in the page's main landmark (all of the page's content
+ * in a landmark), else the body. Placed fixed on the screen either way (placePopup).
+ */
+export function popupHost(from: Element | null): HTMLElement {
+  return from?.closest<HTMLElement>('[role="dialog"]') ?? document.querySelector<HTMLElement>('main') ?? document.body;
+}
+
 /* ---------------- Modal ---------------- */
 
 export function Modal({ title, icon: Icon, onClose, children, footer, wide }: {
@@ -184,6 +193,8 @@ export function Menu({ label, value, items, children, className = 'btn ghost', s
   tip?: string;
 }) {
   const [open, setOpen] = useState(false);
+  // (Where its list goes: the dialog it opens from, else the main landmark; found as it opens.)
+  const [host, setHost] = useState<HTMLElement | null>(null);
   const root = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLDivElement>(null);
 
@@ -238,15 +249,15 @@ export function Menu({ label, value, items, children, className = 'btn ghost', s
         aria-label={value ? `${label}: ${value}` : label}
         data-tip={open ? undefined : tip}
         data-tip-side={side === 'top' ? 'top' : 'bottom'}
-        onClick={() => setOpen((o) => !o)}
+        onClick={(e) => { setHost(popupHost(e.currentTarget)); setOpen((o) => !o); }}
       >
         {children ?? label}
       </button>
-      {open && createPortal(
+      {open && host && createPortal(
         <div className="menu-list" role="menu" aria-label={label} ref={list} onKeyDown={onListKey}>
           <MenuItems items={typeof items === 'function' ? items() : items} onDone={() => setOpen(false)} />
         </div>,
-        document.body,
+        host,
       )}
     </div>
   );
@@ -718,6 +729,7 @@ export function Select<T extends string>({ value, options, onChange, label }: {
 }) {
   const [open, setOpen] = useState(false);
   const [active, setActive] = useState(0);
+  const [host, setHost] = useState<HTMLElement | null>(null);
   const button = useRef<HTMLButtonElement>(null);
   const list = useRef<HTMLUListElement>(null);
   const typed = useRef({ text: '', at: 0 });
@@ -726,7 +738,7 @@ export function Select<T extends string>({ value, options, onChange, label }: {
   const id = useId();
   const index = Math.max(0, options.findIndex((o) => o.value === value));
 
-  const show = () => { hovered.current = false; setActive(index); setOpen(true); };
+  const show = () => { hovered.current = false; setActive(index); setHost(popupHost(button.current)); setOpen(true); };
   const pick = (i: number) => {
     setOpen(false);
     const o = options[i];
@@ -825,7 +837,7 @@ export function Select<T extends string>({ value, options, onChange, label }: {
         <span>{options[index]?.label}</span>
         <ChevronDown size={15} aria-hidden />
       </button>
-      {open && createPortal(
+      {open && host && createPortal(
         <ul ref={list} id={`${id}-list`} className="select-list" role="listbox" aria-label={label}>
           {options.map((o, i) => (
             <li
@@ -846,7 +858,7 @@ export function Select<T extends string>({ value, options, onChange, label }: {
             </li>
           ))}
         </ul>,
-        document.body,
+        host,
       )}
     </div>
   );

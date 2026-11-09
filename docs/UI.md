@@ -109,7 +109,8 @@ first, then everywhere it applies.
   command's tooltip is `tipOf(id)` (its title and its key). Every icon-only control has one; a
   disabled control's tooltip says why.
 - **Menus and select lists open in a portal** placed by `placePopup` (on the screen, flipping to
-  the side with room). Anything that closes on an outside click must ignore clicks `inPopup()`.
+  the side with room), put by `popupHost` in the dialog they open from, else in the page's main
+  landmark (assistive tools stay inside a modal dialog; all of the page is in a landmark). Anything that closes on an outside click must ignore clicks `inPopup()`.
 
 ## 7. Keyboard and focus
 

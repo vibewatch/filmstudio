@@ -1,7 +1,8 @@
 'use client';
 
 import { useEffect, useRef, useSyncExternalStore } from 'react';
-import { MenuItems, placePopup, type MenuItem } from './ui';
+import { createPortal } from 'react-dom';
+import { MenuItems, placePopup, popupHost, type MenuItem } from './ui';
 import { menuListKey } from './roving';
 
 /*
@@ -66,7 +67,7 @@ export function ContextMenuHost() {
   }, [menu]);
 
   if (!menu) return null;
-  return (
+  return createPortal(
     <div
       ref={ref}
       className="menu-list context-menu"
@@ -77,6 +78,7 @@ export function ContextMenuHost() {
     >
       {menu.title && <div className="menu-group" role="presentation">{menu.title}</div>}
       <MenuItems items={menu.items} onDone={closeContextMenu} />
-    </div>
+    </div>,
+    popupHost(null),
   );
 }

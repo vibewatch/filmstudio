@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import * as THREE from 'three';
 import { describe, expect, it } from 'vitest';
 import { applyMotion, setAnimationOptions, startAnimation } from '@/lib/actions';
@@ -214,6 +214,12 @@ describe('motions, round 4 (#61)', () => {
       expect(credits, m.name).toContain(`  ${m.name}\n`);
     }
     expect((index as { name: string; source?: string }[]).find((m) => m.name === 'Swim')?.source).toBe('quaternius');
+  });
+
+  it('the library stays small enough to keep for offline use (the service worker keeps it all): the fingers\' and the upper body\'s smooth keys thinned', () => {
+    let bytes = 0;
+    for (const m of index) bytes += statSync(`public/motions/${m.id.slice(8)}.json`).size;
+    expect(bytes / 1e6).toBeLessThan(65);
   });
 
   it('toes turn smoothly: no Library motion turns them more than 20° in a frame (as captured they flicked 40° as a foot left the floor)', () => {
