@@ -1538,8 +1538,9 @@ export function matchesKey(spec: string, e: KeyboardEvent, exact = false) {
   const key = parts.pop()!;
   if (parts.includes('mod') !== (e.ctrlKey || e.metaKey) || parts.includes('alt') !== e.altKey) return false;
   const letter = /^[a-z]$/.test(key);
-  // (A letter with Shift is another key (Shift F); one without takes Shift too (Caps Lock, a slip), unless asked exactly.)
-  if (letter && (parts.includes('mod') || parts.includes('shift') || exact) && parts.includes('shift') !== e.shiftKey) return false;
+  // (A letter or a named key (Del) with Shift is another key (Shift F, Shift Del); one without takes Shift
+  // too (Caps Lock, a slip), unless asked exactly.)
+  if ((letter || /^[a-z]{2,}\d*$/.test(key)) && (parts.includes('mod') || parts.includes('shift') || exact) && parts.includes('shift') !== e.shiftKey) return false;
   // (The arrows and the Page keys go further with Shift: a step is not a Shift step; Shift + Tab goes back.)
   if (/^(arrow|page|tab)/.test(key) && parts.includes('shift') !== e.shiftKey) return false;
   const pressed = e.key === ' ' ? 'space' : e.key.toLowerCase();

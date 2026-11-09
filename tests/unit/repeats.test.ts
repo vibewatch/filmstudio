@@ -6,7 +6,7 @@ import { mirrorPose } from '@/lib/clip';
 import { withAngles } from '@/lib/pose';
 import { parseClip, parseScene } from '@/lib/doc';
 import { actionsOf, curved, figurePoseAt } from '@/lib/evaluate';
-import { reachOf } from '@/lib/track';
+import { keyTimesOf, reachOf } from '@/lib/track';
 import type { JointName, Pose } from '@/lib/types';
 import { fresh, captured } from '../fixtures/scenes';
 
@@ -209,6 +209,9 @@ describe('keys and motions (#23)', () => {
     const keys = (posed.source as { clip: { parts: { tracks: { times: number[] }[] }[] } }).clip.parts[0].tracks[0].times.length;
     expect(keys).toBeLessThan(act.duration * 24);
     times.forEach((t, i) => expect(apart(figurePoseAt(store.scene, a, t)!, was[i])).toBeLessThan(6));
+    // (One key a moment: the pose held where it starts goes, its first key there instead.)
+    const at = keyTimesOf(store.scene.animation!, a);
+    expect(new Set(at).size).toBe(at.length);
   });
 });
 

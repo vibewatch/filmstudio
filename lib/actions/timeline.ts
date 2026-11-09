@@ -165,7 +165,9 @@ export function editAsKeys(store: Store, id: string): boolean {
     if (poses.length > 1) kept.push(poses[poses.length - 1]);
     return { ...keysAction(role.figure, kept), id: role.figure === act.roles[0].figure ? act.id : uid('act'), ...(act.blendIn ? { blendIn: act.blendIn } : {}) };
   });
-  store.updateScene((x) => (x.animation ? { ...x, animation: { ...x.animation, actions: [...x.animation.actions.filter((y) => y.id !== id), ...made].sort((p, q) => p.start - q.start) } } : x));
+  // (A pose held from where the motion starts, a single key there, goes: the motion's first key is at that moment.)
+  const held = (y: Action) => y.source.kind === 'keys' && !y.layer && y.duration <= 1e-6 && made.some((m) => m.roles[0].figure === y.roles[0].figure && Math.abs(m.start - y.start) < 0.5 / a.fps);
+  store.updateScene((x) => (x.animation ? { ...x, animation: { ...x.animation, actions: [...x.animation.actions.filter((y) => y.id !== id && !held(y)), ...made].sort((p, q) => p.start - q.start) } } : x));
   return true;
 }
 

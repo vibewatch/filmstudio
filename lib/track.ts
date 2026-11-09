@@ -1057,13 +1057,13 @@ function cutShort(x: Action, t: number): Action {
   return { ...x, duration: t - x.start, source: { ...src, to: Math.min(whole.duration, to) } };
 }
 
-/** Make room on a figure's track from t0 to t1: keys there go (one is kept at t0), actions starting there go, ones running into it end at t0. */
+/** Make room on a figure's track from t0 to t1: keys there go (one is kept at t0), actions starting there (at t0 too) go, ones running into it end at t0. */
 export function clear(scene: Scene, figure: string, t0: number, t1: number): Animation {
   const split = splitAt(scene, figure, t0);
   let a = split.a;
   for (const x of actionsOf(a, figure)) {
     if (x.start < t0 - EPS && end(x) > t0 + EPS) a = replace(a, x, [cutShort(x, t0)]);
-    else if (x.start > t0 + EPS && x.start < t1 - EPS) {
+    else if (x.start < t1 - EPS && (x.start > t0 + EPS || (!isKeys(x) && x.start > t0 - EPS))) {
       if (isKeys(x)) {
         const later = keysOf(x).filter((k) => k.t >= t1 - EPS);
         a = replace(a, x, later.length ? [{ ...keysAction(figure, later), id: x.id }] : []);

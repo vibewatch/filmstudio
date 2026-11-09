@@ -1,8 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { addFigure, addProp, addStandIn, holdProp, placeTemplate, startAnimation } from '@/lib/actions';
+import { addFigure, addProp, addStandIn, applyMotion, holdProp, placeTemplate, startAnimation } from '@/lib/actions';
 import { Store } from '@/lib/store';
 import { COMMANDS, command, commandForKey, keyLabel, matchesKey, menu, selectionCtx } from '@/components/commands';
 import { LIBRARY_CATEGORIES, searchLibrary } from '@/components/side/libraryItems';
+import { captured } from '../fixtures/scenes';
 
 class MemoryStorage implements Storage {
   private m = new Map<string, string>();
@@ -38,6 +39,16 @@ describe('commands: one list for keys, menus, toolbars and the palette', () => {
     expect(commandForKey(key('f'), selectionCtx(store))?.id).toBe('view.frame');
     expect(commandForKey(key('F', { shift: true }), selectionCtx(store))?.id).toBe('view.stageOnly');
     expect(commandForKey(key('B', { shift: true }), selectionCtx(store))?.id).toBe('app.board');
+    // So is a named key: Del removes a block, Shift Del removes it closing the gap.
+    expect(matchesKey('delete', key('Delete', { shift: true }), true)).toBe(false);
+    expect(matchesKey('delete', key('Delete', { shift: true }))).toBe(true);
+    expect(matchesKey('shift+delete', key('Delete'))).toBe(false);
+    startAnimation(store, 2);
+    applyMotion(store, store.scene.figures[0].id, captured('waving'));
+    const block = store.scene.animation!.actions.find((x) => x.source.kind === 'clip')!;
+    store.select({ kind: 'action', action: block.id, figure: store.scene.figures[0].id });
+    expect(commandForKey(key('Delete'), selectionCtx(store))?.id).toBe('action.remove');
+    expect(commandForKey(key('Delete', { shift: true }), selectionCtx(store))?.id).toBe('action.rippleDelete');
   });
 
   it('Esc goes up a level: a part to its figure, the figure to nothing', () => {

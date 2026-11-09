@@ -75,6 +75,9 @@ describe('library assets applied to the scene', () => {
     expect(facing(first)).toBeCloseTo(90, 0);
     // All of it, once.
     expect(actionsOf(a, ben.id)[1].duration).toBeCloseTo(a.duration);
+    // Another given at the same moment takes its place: one motion there, not two at once.
+    const again = insertClip(scene, [ben.id], captured('clapping'), 0);
+    expect(actionsOf(again.animation!, ben.id).map((x) => [x.source.kind, x.source.kind === 'clip' && x.source.clip])).toEqual([['keys', false], ['clip', captured('clapping')]]);
   });
 
   it('adds a motion at the playhead to an animated scene, lengthening it', () => {
