@@ -1095,7 +1095,7 @@ input[type='range']:focus-visible::-webkit-slider-thumb { box-shadow: 0 0 0 3px 
 .tl-shot em { font-style: normal; font-weight: 540; color: var(--text-3); margin-left: auto; }
 .tl-shot:hover { background: var(--press); }
 .tl-shot.on { background: var(--accent-soft); color: var(--accent-text); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--accent) 30%, transparent); }
-.tl-shot.on em { color: color-mix(in srgb, var(--accent) 65%, transparent); }
+.tl-shot.on em { color: var(--accent-text); }
 .tl-shot.over { box-shadow: inset 0 0 0 1.5px var(--danger); }
 .tl-shot.over svg { color: var(--danger); flex: none; }
 .tl-shot.on.over svg { color: var(--danger); }

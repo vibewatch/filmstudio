@@ -83,7 +83,7 @@ function Line({ icon: Icon, label, value, go, items, tip, children }: {
   const inner = (
     <>
       <Icon size={16} strokeWidth={1.75} aria-hidden />
-      <span className="scene-line-label">{label}</span>
+      <span className="scene-line-label">{label}</span>{' '}
       <span className="scene-line-value">{value}</span>
       {(go || items) && <ChevronRight size={15} className="scene-line-go" aria-hidden />}
     </>

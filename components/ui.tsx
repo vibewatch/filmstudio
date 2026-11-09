@@ -36,8 +36,10 @@ export function Modal({ title, icon: Icon, onClose, children, footer, wide }: {
     const prev = document.activeElement as HTMLElement | null;
     const root = ref.current!;
     const body = root.querySelector<HTMLElement>('.modal-body')!;
-    // Without a focusable control in the body, focus the dialog itself rather than its Close button.
-    const candidates = [...root.querySelectorAll<HTMLElement>('[data-autofocus]'), ...focusables(body), root];
+    // Without a focusable control in the body, focus the body (so the keys scroll it, a list of
+    // shortcuts) rather than the Close button.
+    if (!focusables(body).length) body.tabIndex = 0;
+    const candidates = [...root.querySelectorAll<HTMLElement>('[data-autofocus]'), ...focusables(body), body, root];
     for (const el of candidates) {
       el.focus();
       if (document.activeElement === el) break;
