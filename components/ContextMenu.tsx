@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useSyncExternalStore } from 'react';
 import { MenuItems, placePopup, type MenuItem } from './ui';
+import { menuListKey } from './roving';
 
 /*
  * Right-click menus. Anything can open one at the pointer with `openContextMenu`; one host in
@@ -48,11 +49,7 @@ export function ContextMenuHost() {
     const onFocus = (e: FocusEvent) => { if (!el?.contains(e.target as Node)) closeContextMenu(); };
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') { e.stopPropagation(); closeContextMenu(); }
-      if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-      e.preventDefault();
-      const items = [...(el?.querySelectorAll<HTMLElement>('[role^=menuitem]:not(:disabled)') ?? [])];
-      const i = items.indexOf(document.activeElement as HTMLElement);
-      items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]?.focus();
+      if (menuListKey(e, el)) e.stopPropagation();
     };
     document.addEventListener('pointerdown', onDown, true);
     document.addEventListener('focusin', onFocus);

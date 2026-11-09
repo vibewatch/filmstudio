@@ -1,6 +1,6 @@
 'use client';
 
-import { rovingKey, useRoving, type Roving } from './roving';
+import { menuListKey, rovingKey, useRoving, type Roving } from './roving';
 import { useEffect, useId, useLayoutEffect, useRef, useState, type ReactNode, type PointerEvent as ReactPointerEvent, type KeyboardEvent as ReactKeyboardEvent } from 'react';
 import { createPortal } from 'react-dom';
 import { Check, ChevronDown, ChevronRight, ChevronUp, CircleAlert, CircleCheck, CircleHelp, Ellipsis, X, type LucideIcon } from 'lucide-react';
@@ -226,13 +226,7 @@ export function Menu({ label, value, items, children, className = 'btn ghost', s
     };
   }, [open, side, align]);
 
-  const onListKey = (e: React.KeyboardEvent) => {
-    if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return;
-    e.preventDefault();
-    const items = [...(list.current?.querySelectorAll<HTMLElement>('[role^=menuitem]:not(:disabled)') ?? [])];
-    const i = items.indexOf(document.activeElement as HTMLElement);
-    items[(i + (e.key === 'ArrowDown' ? 1 : -1) + items.length) % items.length]?.focus();
-  };
+  const onListKey = (e: React.KeyboardEvent) => { if (menuListKey(e, list.current)) e.stopPropagation(); };
 
   return (
     <div className="menu" ref={root}>

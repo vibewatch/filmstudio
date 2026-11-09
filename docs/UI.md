@@ -100,6 +100,8 @@ first, then everywhere it applies.
   A right-click selects what it is on, as a click would, so the inspector shows what the menu is for.
   Menus scroll with the wheel and show ▲ ▼ when they do not fit. A menu closes on a choice, a
   click elsewhere, Escape, or the focus gone elsewhere (a dialog a key opened is never under one).
+  In an open menu ↑ ↓ move (round from the ends), Home and End go to its ends, and a letter to
+  the next item that starts with it (`menuListKey`, for every menu, a drop-down's or a right-click one's).
 - **A set is the floor where it stands**: its furniture or a wall right-clicked has the floor's
   menu for the spot at its foot, never the floor beyond it; a seat (met from any view, its back or
   its front as much as its top) has Sit here.

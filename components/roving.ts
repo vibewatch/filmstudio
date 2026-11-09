@@ -38,6 +38,32 @@ export function useRoving(ref: RefObject<HTMLElement | null>, r: Roving) {
   });
 }
 
+/**
+ * Moving inside an open menu (a drop-down's, a right-click one's): ↑ ↓ (round from the ends), Home
+ * and End, and a letter to the next item that starts with it, as a long menu (Add to set) needs.
+ * True if it took the key.
+ */
+export function menuListKey(e: { key: string; altKey: boolean; ctrlKey: boolean; metaKey: boolean; preventDefault(): void }, list: HTMLElement | null) {
+  if (e.altKey || e.ctrlKey || e.metaKey) return false;
+  const items = [...(list?.querySelectorAll<HTMLElement>('[role^=menuitem]:not(:disabled)') ?? [])];
+  if (!items.length) return false;
+  const i = items.indexOf(document.activeElement as HTMLElement);
+  let to: number;
+  if (e.key === 'ArrowDown') to = (i + 1) % items.length;
+  else if (e.key === 'ArrowUp') to = (i - 1 + items.length) % items.length;
+  else if (e.key === 'Home') to = 0;
+  else if (e.key === 'End') to = items.length - 1;
+  else if (e.key.length === 1 && /\S/.test(e.key)) {
+    const k = e.key.toLowerCase();
+    const next = [...items.slice(i + 1), ...items.slice(0, i + 1)].find((el) => (el.textContent ?? '').trim().toLowerCase().startsWith(k));
+    if (!next) return false;
+    to = items.indexOf(next);
+  } else return false;
+  e.preventDefault();
+  items[to].focus();
+  return true;
+}
+
 /** Shift + F10 or the menu key on an item: its right-click menu, opened where it is. */
 export function menuKey(e: KeyboardEvent<HTMLElement>) {
   if (!(e.key === 'ContextMenu' || (e.shiftKey && e.key === 'F10'))) return false;
