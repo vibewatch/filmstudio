@@ -12,17 +12,13 @@ import type { Scene, Vec3 } from './types';
 type Rapier = typeof RapierModule;
 
 let rapier: Rapier | null = null;
-let loading: Promise<void> | null = null;
 const waiting = new Set<() => void>();
 
-/** Load the physics engine (once); resolves when it is ready. */
-export function loadPhysics(): Promise<void> {
-  loading ??= import('@dimforge/rapier3d').then((m) => {
-    rapier = m;
-    for (const f of waiting) f();
-    waiting.clear();
-  });
-  return loading;
+/** The engine come (lib/physicsload.ts fetches it: not from here, so the server, which never needs it, does not bundle it). */
+export function physicsLoaded(m: Rapier) {
+  rapier = m;
+  for (const f of waiting) f();
+  waiting.clear();
 }
 
 export const physicsReady = () => rapier !== null;

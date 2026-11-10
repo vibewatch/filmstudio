@@ -2,7 +2,8 @@
 import { putClips } from './assets';
 import { sceneAt } from './evaluate';
 import { loadBots } from './mannequin';
-import { loadPhysics, needsPhysics, withPhysics } from './physics';
+import { needsPhysics, withPhysics } from './physics';
+import { loadPhysics } from './physicsload';
 import type { PlayAheadReply, PlayAheadRequest } from './playahead';
 import type { Scene } from './types';
 

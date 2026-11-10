@@ -44,7 +44,7 @@ lib/
   evaluate.ts           The evaluation pipeline: a figure's actions placed and blended, upper body, corrections, holds
   track.ts              Editing tracks: keys, travels, clips put in, actions moved, retimed and recast
   constraints.ts        Contacts solved for the actual bodies (feet planted, hands on partners, holds)
-  physics.ts            Free props: Rapier simulation, baked per flight
+  physics.ts, physicsload.ts  Free props: Rapier simulation, baked per flight; the engine fetched only where scenes play
   assets.ts, assetstore.ts  Clips by id (built-in and imported); imported clips, characters and sounds kept in IndexedDB
   model.ts              Rigs from other tools fitted to the skeleton; characters drawn as figures
   store.ts              App state, undo/redo history, persistence

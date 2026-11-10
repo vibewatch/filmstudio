@@ -5,7 +5,7 @@ import { BOTS_FILE } from '@/lib/bots';
 import { parseClip } from '@/lib/doc';
 import { setBotMeshes } from '@/lib/mannequin';
 import { PRIMITIVES } from '@/lib/locomotion';
-import { loadPhysics } from '@/lib/physics';
+import { loadPhysics } from '@/lib/physicsload';
 
 // The mannequin's meshes, as the app fetches them before anything is drawn.
 setBotMeshes(readFileSync(`public/mannequin/${BOTS_FILE}`));
