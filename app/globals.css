@@ -1800,7 +1800,7 @@ button.psec-title svg { color: var(--text-3); }
 .outline-still { display: grid; gap: 8px; padding: 0 14px; }
 .layer-main .layer-tag { margin-left: auto; color: var(--text-3); }
 .layer-main .layer-tag.warn { color: var(--warn); }
-.layer-main em { min-width: 0; margin-left: auto; overflow: hidden; font-size: var(--fs-s); font-weight: 540; font-style: normal; color: var(--text-3); text-overflow: ellipsis; white-space: nowrap; }
+.layer-main em { min-width: 0; flex-shrink: 100000; margin-left: auto; overflow: hidden; font-size: var(--fs-s); font-weight: 540; font-style: normal; color: var(--text-3); text-overflow: ellipsis; white-space: nowrap; }
 /* (A short name keeps its place; the note beside it gives way.) */
 .layer-main .layer-name { flex: none; }
 .layer-main .layer-tag + em { margin-left: 4px; }

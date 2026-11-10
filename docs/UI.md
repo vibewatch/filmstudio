@@ -39,6 +39,10 @@ first, then everywhere it applies.
   ("Import motion…", "Rename…").
 - **Plain words for what people do**, not engine terms: "Plays on the arms", "Fades over",
   "Between repeats", not "mask", "falloff", "seam". Code names may differ; what is shown may not.
+  So with what goes wrong: a file or a link that cannot be read is said so ("The file could not be
+  read as a BVH file"), never in a parser's or the browser's words (those go to the console).
+- **A row's name keeps its room**: what is said beside it (a camera's shots, a light's role) is
+  cut short first.
 - Empty states say what goes there and how ("Motions you import, or save from a Posed block,
   show here.").
 
