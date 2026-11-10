@@ -1,5 +1,6 @@
 import { parseLibrary } from '@/lib/doc';
 import { currentUserId } from '@/lib/server/auth';
+import { readText } from '@/lib/server/body';
 import { prisma } from '@/lib/server/db';
 
 /*
@@ -19,8 +20,8 @@ export async function GET() {
 export async function PUT(req: Request) {
   const userId = await currentUserId();
   if (!userId) return Response.json({ error: 'Sign in to sync your library' }, { status: 401 });
-  const text = await req.text();
-  if (text.length > MAX_BYTES) return Response.json({ error: 'The library is too large to sync' }, { status: 413 });
+  const text = await readText(req, MAX_BYTES);
+  if (text === null) return Response.json({ error: 'The library is too large to sync' }, { status: 413 });
   let body: { library?: unknown; baseVersion?: unknown };
   try {
     body = JSON.parse(text);

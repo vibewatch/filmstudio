@@ -1,4 +1,5 @@
 import { currentUserId } from '@/lib/server/auth';
+import { readText } from '@/lib/server/body';
 import { prisma } from '@/lib/server/db';
 import { allow, clientKey } from '@/lib/server/ratelimit';
 
@@ -17,11 +18,8 @@ const PER_MINUTE = 10;
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  // (Refused by what it says it is before it is read, and by what it is after.)
-  const tooBig = () => Response.json({ error: 'A note is at most a thousand characters' }, { status: 413 });
-  if (Number(req.headers.get('content-length') ?? 0) > MAX_BODY) return tooBig();
-  const raw = await req.text();
-  if (raw.length > MAX_BODY) return tooBig();
+  const raw = await readText(req, MAX_BODY);
+  if (raw === null) return Response.json({ error: 'A note is at most a thousand characters' }, { status: 413 });
   let body: { t?: unknown; text?: unknown; author?: unknown };
   try {
     body = JSON.parse(raw);

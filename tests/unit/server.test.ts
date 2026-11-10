@@ -128,6 +128,10 @@ describe('reviews API', () => {
     // Too big: by what it says it is, before it is read; and by what it is.
     expect((await from('10.0.0.1', id, { t: 1, text: 'x' }, { 'content-length': '100000' })).status).toBe(413);
     expect((await from('10.0.0.1', id, { t: 1, text: 'x'.repeat(9000) })).status).toBe(413);
+    // Sent in chunks, saying no size: read only as far as the most it may be.
+    const chunks = (n: number) => new ReadableStream<Uint8Array>({ pull(c) { if (n-- > 0) c.enqueue(new TextEncoder().encode(' '.repeat(4096))); else c.close(); } });
+    const streamed = new Request(`http://x/api/reviews/${id}/comments`, { method: 'POST', headers: { 'x-forwarded-for': '10.0.0.1' }, body: chunks(1_000_000), duplex: 'half' } as RequestInit);
+    expect((await routes.notes.POST(streamed, at(id))).status).toBe(413);
     // A thousand characters of any script fit.
     expect((await from('10.0.0.2', id, { t: 1, text: '字'.repeat(1000), author: '读者' })).status).toBe(200);
     // Ten a minute from one address; the eleventh waits; another address is not held up.
@@ -166,6 +170,14 @@ describe('reviews API', () => {
     expect((await del()).status).toBe(200);
     expect((await get(id)).status).toBe(404);
   });
+
+  it('shares so many scenes an hour from one person (each a copy kept on the server)', async () => {
+    user = 'u2';
+    for (let i = 0; i < 30; i++) expect((await share({ scene: newScene(`S${i}`) })).status).toBe(200);
+    expect((await share({ scene: newScene('One more') })).status).toBe(429);
+    user = 'u3';
+    expect((await share({ scene: newScene('Someone else') })).status).toBe(200);
+  });
 });
 
 describe('assets API', () => {
@@ -193,6 +205,19 @@ describe('assets API', () => {
     expect((await routes.asset.GET(new Request('http://x/api/assets/snd-1'), at('snd-1'))).status).toBe(404);
     user = 'u2';
     expect((await routes.asset.GET(new Request('http://x/api/assets/model-1'), at('model-1'))).status).toBe(404);
+  });
+
+  it('counts what one person keeps, but the file being written again (the most kept for one: 2 GB)', async () => {
+    user = 'u3';
+    const { assetBytes } = await import('@/lib/server/assets');
+    const glb = (n: number) => new Uint8Array([...new TextEncoder().encode('glTF'), ...new Uint8Array(n)]);
+    expect((await putAsset('a', glb(96), 'application/octet-stream')).status).toBe(200);
+    expect((await putAsset('b', glb(196), 'application/octet-stream')).status).toBe(200);
+    expect(await assetBytes('u3', 'none')).toBe(300);
+    expect(await assetBytes('u3', 'a')).toBe(200);
+    // Too big a file: refused by the size it says, before it is read.
+    const big = new Request('http://x/api/assets/c', { method: 'PUT', headers: { 'Content-Type': 'application/octet-stream', 'content-length': String(65 * 1024 * 1024) }, body: new Blob([glb(4) as BlobPart]) });
+    expect((await routes.asset.PUT(big, at('c'))).status).toBe(413);
   });
 });
 

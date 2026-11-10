@@ -57,7 +57,7 @@ Copy `.env.example` to `.env` and fill it in:
 | `DATABASE_URL` | The SQLite file (default `file:./data/pose-studio.db`) |
 | `ASSETS_DIR` | Where users' imported motions and characters are kept (default `assets/` beside the database) |
 
-Each sign-in provider appears when it is configured.
+Each sign-in provider appears when it is configured. Anyone with an account there can sign in, so the server bounds what one person can do: requests are refused past their size before they are read, a person's imported files are kept up to 2 GB in all, scenes are shared for review up to 30 an hour, notes on a review up to 10 a minute, and the assistant's requests up to `AI_DAILY_LIMIT` a day.
 
 ```bash
 npm run db:migrate && npm run dev                      # local

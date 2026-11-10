@@ -1,6 +1,7 @@
 import { parseClip } from '@/lib/doc';
 import { currentUserId } from '@/lib/server/auth';
-import { deleteAsset, readAsset, validId, writeAsset } from '@/lib/server/assets';
+import { assetBytes, deleteAsset, readAsset, validId, writeAsset } from '@/lib/server/assets';
+import { readBody } from '@/lib/server/body';
 
 /*
  * One of the signed-in user's imported assets, kept on the server as a file: a clip's frames
@@ -8,6 +9,8 @@ import { deleteAsset, readAsset, validId, writeAsset } from '@/lib/server/assets
  */
 
 const MAX_BYTES = 64 * 1024 * 1024;
+/** The most one person's files may come to in all (anyone can sign in: the disk is not theirs to fill). */
+const MAX_TOTAL = 2 * 1024 * 1024 * 1024;
 
 export async function GET(_req: Request, ctx: { params: Promise<{ id: string }> }) {
   const userId = await currentUserId();
@@ -23,8 +26,9 @@ export async function PUT(req: Request, ctx: { params: Promise<{ id: string }> }
   if (!userId) return Response.json({ error: 'Sign in to sync your library' }, { status: 401 });
   const { id } = await ctx.params;
   if (!validId(id)) return Response.json({ error: 'Invalid id' }, { status: 400 });
-  const data = new Uint8Array(await req.arrayBuffer());
-  if (data.length > MAX_BYTES) return Response.json({ error: 'The file is too large' }, { status: 413 });
+  const data = await readBody(req, MAX_BYTES);
+  if (!data) return Response.json({ error: 'The file is too large' }, { status: 413 });
+  if ((await assetBytes(userId, id)) + data.length > MAX_TOTAL) return Response.json({ error: 'Your imported files are more than the server keeps for one person (2 GB): delete some first' }, { status: 413 });
   if (req.headers.get('content-type')?.startsWith('audio/')) {
     // A sound (#35): WAV, MP3, OGG, M4A or FLAC, by how its file begins.
     const head = new TextDecoder('latin1').decode(data.slice(0, 12));

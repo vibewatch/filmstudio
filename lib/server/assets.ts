@@ -1,5 +1,5 @@
 import 'server-only';
-import { mkdir, readdir, readFile, rm, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, rm, stat, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { DATABASE_URL } from './db';
 
@@ -35,6 +35,13 @@ async function files(user: string): Promise<string[]> {
   } catch {
     return [];
   }
+}
+
+/** How many bytes a user's files come to, but `except`'s (the one about to be written again). */
+export async function assetBytes(user: string, except: string): Promise<number> {
+  const sizes = await Promise.all((await files(user)).filter((f) => f.replace(/\.\w+$/, '') !== except)
+    .map((f) => stat(/*turbopackIgnore: true*/ file(user, f)).then((s) => s.size, () => 0)));
+  return sizes.reduce((n, s) => n + s, 0);
 }
 
 /** An asset's file and its type, or null. */

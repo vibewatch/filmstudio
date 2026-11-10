@@ -89,7 +89,7 @@ lib/
   poses.ts              The pose library: the reference poses and the user's (applied by actions/library)
   agent/                AI assistant: tool registry and the browser side of a turn (tools run here, the model on the server)
   sync.ts, cloud.ts     Library sync: three-way merge per pose; the client that pulls, pushes and merges
-  server/               Server-only: NextAuth options, Prisma client, AI upstream config
+  server/               Server-only: NextAuth options, Prisma client, AI upstream config, assets on disk, bounded request bodies (body.ts), rate limits
 app/api/*/route.server.ts  Server edition API: auth, library, assets (imported motions and characters), AI
 prisma/                 Database schema and migrations (SQLite)
 app/api/health          Liveness endpoint

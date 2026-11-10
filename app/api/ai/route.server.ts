@@ -1,6 +1,7 @@
 import { SYSTEM_PROMPT, TOOLS } from '@/lib/agent/tools';
 import { dailyLimit, today, upstream } from '@/lib/server/ai';
 import { currentUserId } from '@/lib/server/auth';
+import { readText } from '@/lib/server/body';
 import { prisma } from '@/lib/server/db';
 
 /*
@@ -32,8 +33,8 @@ export async function POST(req: Request) {
   if (!up) return Response.json({ error: 'The assistant is not configured on this server' }, { status: 503 });
   if ((await usage(userId)) >= dailyLimit()) return Response.json({ error: 'Daily assistant limit reached; it resets at midnight UTC' }, { status: 429 });
 
-  const text = await req.text();
-  if (text.length > MAX_INPUT) return Response.json({ error: 'Request too large' }, { status: 413 });
+  const text = await readText(req, MAX_INPUT);
+  if (text === null) return Response.json({ error: 'Request too large' }, { status: 413 });
   let body: { input?: unknown; previous_response_id?: unknown };
   try {
     body = JSON.parse(text);
