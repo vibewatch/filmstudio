@@ -36,10 +36,22 @@ components/
   server/               Server edition only (imported as '@edition/server'; static builds get server/none.ts): account menu, sync, AI assistant
   Practice.tsx          Gesture-practice slideshow
   Timeline.tsx, clock.ts  Timeline (its bar, zoom, picks, keys); playback clock
+  StartDialog.tsx       New scene: ready to shoot, templates, shoot presets, a length to stretch them to
+  ActionPicker.tsx      What a figure does next, picked from its row's + (everyday beats first)
+  CameraPip.tsx, Letterbox.tsx  The selected camera's live picture in a corner; looking through a camera (its frame, guides, banner)
+  LightHandles.tsx, glyphs.ts, ViewBall.tsx, viewGizmo.ts, Line.tsx
+                        The lights and cameras on the canvas (glyphs one size on screen), the view gizmo, lines kept with their material
+  placing.ts, dragdrop.ts, modifiers.ts  Adding is placing (a ghost that follows the pointer); dragging Library items onto things; drag modifiers (Ctrl snaps)
+  hints.ts, nextStep.ts The header's hint: what a gesture does on what is under the pointer; the next step for where the scene is
+  roving.ts, Tooltip.tsx, CommandButton.tsx, SelectionTag.tsx, SaveIndicator.tsx, rename.ts
+                        Keyboard in lists (one Tab stop, the arrows inside, menu keys); tooltips; toolbar buttons; the selection's tag; the save indicator; renaming in place
+  exportJob.ts, soundplay.ts, frames.ts, useSettled.ts, store-context.tsx, ErrorBoundary.tsx
+                        An export going on with its dialog closed; the scene's sound as it plays; drawing on demand; a value once it settles (costly work after a drag rests); the store's hooks; the crash screen (the project kept)
   timeline/             Its rows (ruler, shots, people, props, path camera) and its drags
 lib/
   types.ts              Document model: Library → Scene → Figure / Prop / Animation (actions on tracks, constraints, prop keys)
   skeleton.ts, pose.ts  The VRM humanoid skeleton (bone turns as quaternions on the T-pose); joint angles for people
+  joints.ts, hands.ts   Joint names, labels, sides and limits; the hand presets and finger curls
   clip.ts               Clips: motion of one or more people as glTF-style tracks, sampled at any time
   evaluate.ts           The evaluation pipeline: a figure's actions placed and blended, upper body, corrections, holds
   track.ts              Editing tracks: keys, travels, clips put in, actions moved, retimed and recast
@@ -47,6 +59,10 @@ lib/
   physics.ts, physicsload.ts  Free props: Rapier simulation, baked per flight; the engine fetched only where scenes play
   assets.ts, assetstore.ts  Clips by id (built-in and imported); imported clips, characters and sounds kept in IndexedDB
   model.ts              Rigs from other tools fitted to the skeleton; characters drawn as figures
+  characters.ts, thumbnails.ts  The built-in characters (fetched when first drawn); one off-screen renderer for thumbnails and stills
+  face.ts               A character's face as it plays: blinks, talking, feelings from what it does
+  vrm.ts, springs.ts    VRM avatars read on import (skeleton map, MToon looks, credits); spring bones (hair, skirts) swinging as it plays
+  features.ts           A character's eyes, brows and lips inked in the flat styles, from its own textures
   store.ts              App state, undo/redo history, persistence
   actions/              All document operations (the UI, the commands and the assistant), by part: scenes, figures,
                         lights, props, motion, timeline, cameras, library, selection
@@ -57,6 +73,8 @@ lib/
   sceneview.ts          Keeps three.js objects in sync with a Scene (shared by editor and exporter)
   styles.ts             Render style definitions (outline, rings, interior lines, background, lighting)
   ink.ts, shaders.ts    Outline hulls with brush jitter, per-style materials, pencil / ink-wash / anime shaders
+  toon.ts               The Anime style's surface: our own MToon-like material (lit and shade colours, a crisp edge, a rim)
+  paintedsky.ts         Skies painted for the drawn styles (Anime and Pixel, Watercolour's wash)
   lineart.ts            Part-ID edge pass for the lines where body parts meet (and a set's silhouette)
   pixel.ts, watercolour.ts, realpass.ts
                         The picture-wide passes: Pixel's pixels, Watercolour's paint, 3D's camera look
@@ -67,10 +85,16 @@ lib/
   relations.ts          Spatial relations between figures: facing, spacing, look-at, reach
   stagings.ts           How several people stand together (for templates and motions)
   templates.ts          Scene templates: cast, set, actions and light; placed into a scene
+  films.ts              The staged scenes (a minute or more each), beat by beat, for the ready-to-shoot presets
   animation.ts          Animation documents: frames, keyed actions, prop keys, cameras and shots
   playahead.ts, playahead.worker.ts
                         Playback worked out ahead on a worker thread (the page draws its frames)
   motions.ts            Motion library: what people do, no camera or set
+  humanize.ts           Life in a made motion: the body taking part, overlap, settling, breathing
+  librarymotions.ts     The Library's motion files (public/motions): listed from their index, each fetched when first used; their sources
+  motionfix.ts          Motion capture made ready for our figures (facing where they look, the wrists' roll the forearms')
+  strike.ts             When a motion's blow lands (what a reaction is timed to)
+  idle.ts, extras.ts    Idle life in the gaps (breathing, shifts, glances); extras passing by behind the cast
   cameras.ts            Cameras: paths, framing, shot sizes, lenses, camera moves; the camera filming at a time
   shots.ts, otio.ts     Cuts and per-model clip limits; OpenTimelineIO cut list
   coverage.ts           Coverage: cameras on roles (master, singles, over-the-shoulder, tracking) and cutting rules
@@ -86,7 +110,12 @@ lib/
   propmotion.ts         Props over time: held, flying, resting; releases, catches, handoffs, handles
   importmotion.ts       Motion import: BVH/FBX/glTF read bone by bone onto the skeleton (several people: several parts)
   share.ts              Share-link encoding (deflate + base64url in the URL fragment)
+  search.ts             Searching the Library, the palette and the action picker in everyday words
+  uid.ts, paths.ts      Short ids with a type prefix; the base path when served from a sub-path
   poses.ts              The pose library: the reference poses and the user's (applied by actions/library)
+  presets.ts            The poses' data: the 20 of the reference sheet and the gallery's, by posture
+  previews.ts, views.ts The Library's previews (a pose, a motion playing, a camera move filming); the view keys 1–6
+  csp.ts                The Content-Security-Policy, for the server's headers and the static build's meta tag
   agent/                AI assistant: tool registry and the browser side of a turn (tools run here, the model on the server)
   sync.ts, cloud.ts     Library sync: three-way merge per pose; the client that pulls, pushes and merges
   server/               Server-only: NextAuth options, Prisma client, AI upstream config, assets on disk, bounded request bodies (body.ts), rate limits

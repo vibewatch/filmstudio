@@ -103,6 +103,8 @@ describe('importing motions from other tools', () => {
     const text = new TextEncoder().encode('HIERARCHY\nROOT Thing\n{\nOFFSET 0 0 0\nCHANNELS 3 Xposition Yposition Zposition\nEnd Site\n{\nOFFSET 0 1 0\n}\n}\nMOTION\nFrames: 1\nFrame Time: 0.1\n0 0 0\n').buffer as ArrayBuffer;
     await expect(async () => retargetMotion(await readMotionFile('x.bvh', text))).rejects.toThrow(/Could not find/);
     await expect(readMotionFile('x.txt', text)).rejects.toThrow(/BVH, FBX/);
+    // A file that is not what its name says: said so, not in the parser's words.
+    await expect(readMotionFile('junk.bvh', new TextEncoder().encode('HIERARCHY\nROOT x {\n garbage').buffer as ArrayBuffer)).rejects.toThrow('The file could not be read as a BVH file');
   });
 
   it('imports a Film Studio motion file as it was saved, under a new id', async () => {

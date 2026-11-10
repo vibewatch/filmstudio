@@ -27,7 +27,8 @@ describe('share links', () => {
   });
 
   it('rejects garbage', async () => {
-    await expect(decodeScene('not-a-real-link')).rejects.toThrow();
+    await expect(decodeScene('not-a-real-link')).rejects.toThrow('The link is incomplete or damaged: copy all of it');
+    await expect(decodeScene('AAAA!!!garbage')).rejects.toThrow('The link is incomplete or damaged: copy all of it');
   });
 });
 

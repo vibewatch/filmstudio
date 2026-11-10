@@ -53,8 +53,16 @@ export async function encodeScene(scene: Scene): Promise<string> {
 
 export async function decodeScene(encoded: string): Promise<Scene> {
   if (encoded.length > 200_000) throw new Error('Share link is too long');
-  const json = await pipe(fromBase64Url(encoded), new DecompressionStream('deflate-raw'), MAX_DECODED);
-  return parseScene(JSON.parse(new TextDecoder().decode(json)));
+  let data: unknown;
+  try {
+    const json = await pipe(fromBase64Url(encoded), new DecompressionStream('deflate-raw'), MAX_DECODED);
+    data = JSON.parse(new TextDecoder().decode(json));
+  } catch (err) {
+    // (Cut short when copied, or changed: said so, not in the decoder's words; too large as it is.)
+    if (err instanceof Error && err.message === 'Share link is too large') throw err;
+    throw new Error('The link is incomplete or damaged: copy all of it');
+  }
+  return parseScene(data);
 }
 
 export async function shareUrl(scene: Scene, base = window.location.href) {

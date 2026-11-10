@@ -990,6 +990,20 @@ function exportable(root: THREE.Object3D) {
 }
 
 /**
+ * A file read by a parser (three's loaders), which says what went wrong in its own terms (a typed
+ * array's length, an offset outside a view): told as the file not being what it says it is, the
+ * parser's own words kept for the console.
+ */
+export async function readAs<T>(what: string, read: () => T | Promise<T>): Promise<T> {
+  try {
+    return await read();
+  } catch (err) {
+    console.warn(err);
+    throw new Error(`The file could not be read as ${what}`);
+  }
+}
+
+/**
  * Import a character: read its file (an FBX or a .gltf with `others`, its textures, kept as one
  * GLB), find its bones (`map`: mapped by hand), keep the file. Throws MissingBones when not all are
  * found (to map them by hand).
@@ -999,9 +1013,10 @@ export async function importModel(name: string, data: ArrayBuffer, map?: BoneMap
   if (ext !== 'fbx' && ext !== 'glb' && ext !== 'gltf' && ext !== 'vrm') throw new Error('Use a VRM, glTF/GLB or FBX character');
   // (A GLB or VRM as it is: a VRM's own extensions, which the GLB made of it would not keep. A
   // .gltf too, unless files come with it.)
-  if (ext === 'fbx' || (ext === 'gltf' && others.length)) data = await asGlb(ext === 'fbx' ? 'fbx' : 'glb', data, others);
+  const what = ext === 'fbx' ? 'an FBX file' : ext === 'vrm' ? 'a VRM file' : 'a glTF file';
+  if (ext === 'fbx' || (ext === 'gltf' && others.length)) data = await readAs(what, () => asGlb(ext === 'fbx' ? 'fbx' : 'glb', data, others));
   const format = 'glb';
-  const root = await parseModel(format, data);
+  const root = await readAs(what, () => parseModel(format, data));
   if (!rigBones(root).some((o) => (o as THREE.Bone).isBone)) throw new Error('The file has no skeleton');
   // (A VRM says which bone is which; the rest, and others' bones, are found by their names: only
   // bones its humanoid does not already have, so none is taken for two.)

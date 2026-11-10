@@ -197,7 +197,10 @@ export function symmetrize(f: Figure, from: Side): Figure {
 /* ------------------------------------------------------------------ */
 /* Parsing / validation (for localStorage, JSON import and share links) */
 
-const num = (v: unknown, fallback: number) => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
+/** The most a number read from a file may be (metres, degrees, kelvin…): far past any scene, so what is worked out from it stays finite. */
+const MAX_NUMBER = 1e5;
+const fine = (v: unknown): v is number => typeof v === 'number' && Number.isFinite(v) && Math.abs(v) <= MAX_NUMBER;
+const num = (v: unknown, fallback: number) => (fine(v) ? v : fallback);
 const vec3 = (v: unknown, fallback: Vec3): Vec3 =>
   Array.isArray(v) && v.length === 3 ? [num(v[0], fallback[0]), num(v[1], fallback[1]), num(v[2], fallback[2])] : [...fallback];
 const str = (v: unknown, fallback: string) => (typeof v === 'string' && v.length <= 200 ? v : fallback);
@@ -356,7 +359,7 @@ function parseTrack(v: unknown): ClipTrack | null {
   const size = trackSize(v.name);
   const times = v.times.slice(0, 20000);
   if (!size || !times.length || v.values.length !== times.length * size) return null;
-  if (![...times, ...v.values].every((x) => typeof x === 'number' && Number.isFinite(x))) return null;
+  if (![...times, ...v.values].every(fine)) return null;
   if (times.some((t, i) => i > 0 && t < times[i - 1])) return null;
   let values = v.values as number[];
   if (size === 4) {

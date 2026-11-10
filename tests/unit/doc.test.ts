@@ -35,7 +35,7 @@ describe('parseLibrary', () => {
         body: { height: 99, sex: -3 },
         hands: { L: { curl: [2, -1, 0.5], spread: 7 } },
       }],
-      props: [{ kind: 'spaceship' }, { kind: 'box', scale: [0, -2, 1e9] }],
+      props: [{ kind: 'spaceship' }, { kind: 'box', scale: [0, -2, 500] }],
       cameras: [{ kind: 'path', points: [] }, { kind: 'rig', rig: { pitch: 200, lens: 0 } }],
     });
     const f = s.figures[0];
@@ -51,6 +51,9 @@ describe('parseLibrary', () => {
     expect(s.props[0].scale).toEqual([0.02, 2, 20]);
     // A path without points goes; a rig's numbers are kept in range.
     expect(s.cameras).toMatchObject([{ kind: 'rig', rig: { pitch: 89, lens: 4 } }]);
+    // A number past any scene is not taken (the view framing it would be lost at infinity).
+    const far = parseScene({ name: 'Far', figures: [{ position: [1e308, -1e308, 5] }] });
+    expect(far.figures[0].position).toEqual([0, 0, 5]);
   });
 
   it('gives duplicate ids fresh ones', () => {

@@ -8,7 +8,7 @@ import { newFigure, parseClip } from './doc';
 import { detectContacts } from './constraints';
 import { RELAXED_HAND, cloneHand } from './hands';
 import { legsOf } from './locomotion';
-import { Fitted, MissingBones, mapBones, missingBones, rigBones, type BoneMap } from './model';
+import { Fitted, MissingBones, mapBones, missingBones, readAs, rigBones, type BoneMap } from './model';
 import { toQuat, type Bones } from './pose';
 import { Rig } from './relations';
 import { PARENT } from './skeleton';
@@ -40,7 +40,7 @@ export async function readMotionFile(name: string, data: ArrayBuffer): Promise<M
   const ext = name.toLowerCase().split('.').pop();
   const title = name.replace(/\.[^.]+$/, '').replace(/[_-]+/g, ' ').trim() || 'Motion';
   if (ext === 'bvh') {
-    const r = new BVHLoader().parse(new TextDecoder().decode(data));
+    const r = await readAs('a BVH file', () => new BVHLoader().parse(new TextDecoder().decode(data)));
     for (const b of r.skeleton.bones) b.name = b.name.replace(/:/g, '');
     for (const t of r.clip.tracks) t.name = t.name.replace(/:/g, '');
     const root = new THREE.Group();
@@ -48,12 +48,12 @@ export async function readMotionFile(name: string, data: ArrayBuffer): Promise<M
     return { name: title, root, clip: r.clip };
   }
   if (ext === 'fbx') {
-    const root = new FBXLoader().parse(data, '');
+    const root = await readAs('an FBX file', () => new FBXLoader().parse(data, ''));
     if (!root.animations[0]) throw new Error('The file has no animation');
     return { name: title, root, clip: root.animations[0] };
   }
   if (ext === 'glb' || ext === 'gltf') {
-    const gltf = await new GLTFLoader().parseAsync(data, '');
+    const gltf = await readAs('a glTF file', () => new GLTFLoader().parseAsync(data, ''));
     if (!gltf.animations[0]) throw new Error('The file has no animation');
     return { name: title, root: gltf.scene, clip: gltf.animations[0] };
   }
